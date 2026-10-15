@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Rondgang">
+<meta name="theme-color" content="#1F4E79">
+<title>Rondgang preventie</title>
+<style>
+/* Rondgang-app — gsm eerst; één kolom, grote knoppen, duim onderaan */
+:root{ --blauw:#1F4E79; --blauw-d:#163A5B; --acc:#0584AC; --oranje:#E87722; --rood:#C62828; --groen:#2E7D32;
+  --bg:#F2F5F8; --kaart:#FFFFFF; --tekst:#1E2A36; --zacht:#5F6B76; --lijn:#E1E6EC; --veld:#F7F9FB; }
+*{ box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+html,body{ height:100%; }
+body{ font:16px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; background:var(--bg); color:var(--tekst); }
+.kop{ position:sticky; top:0; z-index:5; background:var(--blauw); color:#fff; padding:calc(env(safe-area-inset-top,0px) + 12px) 16px 12px; display:flex; align-items:center; gap:12px; }
+.kop h1{ font-size:18px; font-weight:700; flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.kop small{ display:block; font-size:12px; font-weight:400; opacity:.75; }
+.kop button{ background:rgba(255,255,255,.14); border:0; color:#fff; border-radius:10px; padding:8px 12px; font:600 15px inherit; font-family:inherit; }
+main{ padding:16px 16px calc(env(safe-area-inset-bottom,0px) + 110px); max-width:640px; margin:0 auto; display:flex; flex-direction:column; gap:14px; }
+.kaart{ background:var(--kaart); border-radius:14px; padding:14px 16px; box-shadow:0 1px 3px rgba(16,24,40,.07); }
+.rij{ display:flex; gap:10px; align-items:center; }
+label.lbl{ display:block; font-size:13px; font-weight:700; color:var(--zacht); margin:0 0 6px; }
+input[type=text], input[type=date], textarea{ width:100%; font:16px inherit; font-family:inherit; color:var(--tekst); background:var(--veld); border:1px solid var(--lijn); border-radius:10px; padding:11px 12px; }
+textarea{ min-height:92px; resize:vertical; }
+input:focus, textarea:focus{ outline:2px solid var(--acc); outline-offset:0; background:#fff; }
+.velden{ display:flex; flex-direction:column; gap:12px; }
+.knop{ display:flex; align-items:center; justify-content:center; gap:8px; border:0; border-radius:12px; padding:14px 16px; font:700 16px inherit; font-family:inherit; width:100%; cursor:pointer; }
+.knop.hoofd{ background:var(--oranje); color:#fff; }
+.knop.blauw{ background:var(--blauw); color:#fff; }
+.knop.licht{ background:#fff; color:var(--blauw); border:1px solid var(--lijn); }
+.knop:disabled{ opacity:.45; }
+.onder{ position:fixed; left:0; right:0; bottom:0; padding:12px 16px calc(env(safe-area-inset-bottom,0px) + 12px); background:linear-gradient(to top, var(--bg) 70%, rgba(242,245,248,0)); z-index:4; }
+.onder .binnen{ max-width:640px; margin:0 auto; display:flex; gap:10px; }
+.rg-it{ display:flex; gap:12px; align-items:center; width:100%; text-align:left; background:var(--kaart); border:0; border-radius:14px; padding:14px 16px; box-shadow:0 1px 3px rgba(16,24,40,.07); font:inherit; color:inherit; }
+.rg-it b{ display:block; font-size:16px; } .rg-it span{ color:var(--zacht); font-size:13px; }
+.pil{ display:inline-block; border-radius:20px; padding:3px 10px; font-size:12px; font-weight:700; white-space:nowrap; }
+.pil.bezig{ background:#FDEFE3; color:#B4570F; } .pil.weg{ background:#E6F4EA; color:#1E6B32; }
+.pil.Hoog{ background:#FBE9E9; color:#A32020; } .pil.Midden{ background:#FDEFE3; color:#B4570F; } .pil.Laag{ background:#E7F0F9; color:#2B5F94; }
+.pil.opm{ background:#EEF1F4; color:var(--zacht); }
+.punt{ display:flex; gap:12px; }
+.punt .dm{ width:76px; height:76px; border-radius:10px; object-fit:cover; flex:none; background:#DDE3EA; }
+.punt .tx{ flex:1; min-width:0; } .punt .tx p{ font-size:15px; overflow-wrap:anywhere; } .punt .tx small{ color:var(--zacht); font-size:13px; display:block; margin-top:2px; }
+.punt .nr{ font-size:12px; color:var(--zacht); font-weight:700; }
+.punt-k{ display:flex; gap:6px; margin-top:8px; flex-wrap:wrap; align-items:center; }
+.mini{ background:none; border:0; color:var(--acc); font:600 14px inherit; font-family:inherit; padding:4px 2px; }
+.mini.weg{ color:var(--rood); }
+.fotos{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+.fotos div{ position:relative; aspect-ratio:1; border-radius:10px; overflow:hidden; background:#DDE3EA; }
+.fotos img{ width:100%; height:100%; object-fit:cover; display:block; }
+.fotos button{ position:absolute; top:4px; right:4px; width:28px; height:28px; border-radius:50%; border:0; background:rgba(0,0,0,.6); color:#fff; font-size:16px; line-height:1; }
+.fotoknop{ display:flex; gap:8px; }
+.fotoknop label{ flex:1; }
+.seg{ display:flex; background:var(--veld); border:1px solid var(--lijn); border-radius:12px; padding:3px; gap:3px; }
+.seg button{ flex:1; border:0; background:none; border-radius:9px; padding:10px 6px; font:600 14px inherit; font-family:inherit; color:var(--zacht); }
+.seg button.aan{ background:#fff; color:var(--blauw); box-shadow:0 1px 3px rgba(0,0,0,.12); }
+.seg.prio button.aan[data-v=Hoog]{ color:var(--rood); } .seg.prio button.aan[data-v=Midden]{ color:#B4570F; }
+.leeg{ text-align:center; color:var(--zacht); padding:26px 10px; }
+.uitleg{ font-size:13px; color:var(--zacht); }
+.melding{ position:fixed; left:50%; bottom:calc(env(safe-area-inset-bottom,0px) + 96px); transform:translateX(-50%); background:#1E2A36; color:#fff; padding:11px 16px; border-radius:10px; font-size:14px; z-index:9; max-width:90vw; text-align:center; }
+.vk{ font-size:13px; color:var(--zacht); }
+[hidden]{ display:none !important; }
+.bevestig{ position:fixed; inset:0; background:rgba(16,24,40,.45); z-index:8; display:flex; align-items:flex-end; }
+.bevestig .kaart{ width:100%; border-radius:16px 16px 0 0; padding:18px 16px calc(env(safe-area-inset-bottom,0px) + 16px); display:flex; flex-direction:column; gap:10px; }
+</style>
+</head>
+<body>
+<div class="kop"><button id="terug" hidden>&#8249; Terug</button><h1 id="titel">Rondgangen<small id="sub">Preventie Houthalen-Helchteren</small></h1><button id="instelKnop">&#9881;</button></div>
+<main id="scherm"></main>
+<div class="onder" id="onder"><div class="binnen" id="onderBinnen"></div></div>
+<input type="file" id="camera" accept="image/*" capture="environment" hidden>
+<input type="file" id="bib" accept="image/*" multiple hidden>
+<script>
+"use strict";
+const MAX = 1600, KWAL = 0.72;
+let staat = {scherm:"lijst", rid:null, pid:null}, lijst = [], db = null, concept = null;
+const $ = s => document.querySelector(s);
+const esc = s => String(s??"").replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const vandaag = () => { const d = new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); };
+const dNL = iso => iso ? iso.split("-").reverse().join("/") : "";
+const nieuwId = () => Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const slug = s => String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^A-Za-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,40) || "gebouw";
+function melding(t, ms){ const m = document.createElement("div"); m.className = "melding"; m.textContent = t; document.body.appendChild(m); setTimeout(()=>m.remove(), ms||2400); }
+function ls(k, v){ try{ if(v===undefined) return JSON.parse(localStorage.getItem(k)||"null"); localStorage.setItem(k, JSON.stringify(v)); }catch(e){ return null; } }
+
+/* --- opslag op de gsm (IndexedDB; foto's als blob) --- */
+function dbOpen(){ return new Promise(res=>{ try{ const r = indexedDB.open("rondgang-app", 1); r.onupgradeneeded = ()=>r.result.createObjectStore("rg", {keyPath:"id"}); r.onsuccess = ()=>res(r.result); r.onerror = ()=>res(null); }catch(e){ res(null); } }); }
+function dbAlles(){ return new Promise(res=>{ if(!db) return res(lijst); try{ const q = db.transaction("rg").objectStore("rg").getAll(); q.onsuccess = ()=>res(q.result||[]); q.onerror = ()=>res([]); }catch(e){ res([]); } }); }
+function dbZet(r){ return new Promise(res=>{ if(!db) return res(); try{ const t = db.transaction("rg","readwrite"); t.objectStore("rg").put(r); t.oncomplete = ()=>res(); t.onerror = ()=>{ melding("Bewaren op de gsm lukte niet (geheugen vol?)."); res(); }; }catch(e){ res(); } }); }
+function dbWeg(id){ return new Promise(res=>{ if(!db) return res(); try{ const t = db.transaction("rg","readwrite"); t.objectStore("rg").delete(id); t.oncomplete = ()=>res(); t.onerror = ()=>res(); }catch(e){ res(); } }); }
+async function bewaar(r){ r.gewijzigd = new Date().toISOString(); const i = lijst.findIndex(x=>x.id===r.id); if(i<0) lijst.push(r); else lijst[i] = r; await dbZet(r); }
+
+/* --- gebouwenlijst: komt mee in de link uit het programma (#g=…), wordt op de gsm onthouden --- */
+function leesLink(){ const h = location.hash; if(!h.startsWith("#g=")) return;
+  try{ const s = atob(h.slice(3).replace(/-/g,"+").replace(/_/g,"/")); const b = new Uint8Array([...s].map(c=>c.charCodeAt(0))); const j = JSON.parse(new TextDecoder().decode(b));
+    if(Array.isArray(j.g)){ ls("rg-gebouwen", j.g); if(j.n && !ls("rg-naam")) ls("rg-naam", j.n); melding(`${j.g.length} gebouwen ingeladen.`); }
+  }catch(e){ melding("De gebouwenlijst in deze link kon niet gelezen worden."); }
+  try{ history.replaceState(null, "", location.pathname + location.search); }catch(e){} }
+const gebouwen = () => ls("rg-gebouwen") || [];
+const gebouwId = naam => (gebouwen().find(g=>g[1].toLowerCase()===String(naam||"").trim().toLowerCase())||[])[0] || "";
+
+/* --- foto verkleinen --- */
+function verklein(file){ return new Promise(res=>{ const url = URL.createObjectURL(file), img = new Image();
+  img.onload = ()=>{ const s = Math.min(1, MAX/Math.max(img.naturalWidth, img.naturalHeight)), c = document.createElement("canvas"); c.width = Math.round(img.naturalWidth*s); c.height = Math.round(img.naturalHeight*s);
+    c.getContext("2d").drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url); c.toBlob(b=>res(b), "image/jpeg", KWAL); };
+  img.onerror = ()=>{ URL.revokeObjectURL(url); res(null); }; img.src = url; }); }
+const urls = new Map(); function fotoUrl(b){ if(!urls.has(b)) urls.set(b, URL.createObjectURL(b)); return urls.get(b); }
+
+/* --- schermen --- */
+function kop(titel, sub, terug){ $("#titel").innerHTML = `${esc(titel)}<small>${esc(sub||"")}</small>`; $("#terug").hidden = !terug; }
+function onder(html){ $("#onderBinnen").innerHTML = html; $("#onder").hidden = !html; }
+function toon(){ window.scrollTo(0,0); ({lijst:schermLijst, rg:schermRondgang, punt:schermPunt, instel:schermInstel})[staat.scherm](); }
+const huidig = () => lijst.find(r=>r.id===staat.rid);
+
+function schermLijst(){
+  kop("Rondgangen", "Preventie Houthalen-Helchteren", false);
+  const l = lijst.slice().sort((a,b)=>(b.gewijzigd||"").localeCompare(a.gewijzigd||""));
+  $("#scherm").innerHTML = (l.length ? l.map(r=>`<button class="rg-it" data-id="${r.id}"><div style="flex:1; min-width:0"><b>${esc(r.gebouw||"Gebouw nog te kiezen")}</b><span>${dNL(r.datum)} · ${r.punten.length} punt${r.punten.length===1?"":"en"} · ${r.punten.reduce((n,p)=>n+p.fotos.length,0)} foto's</span></div>
+      <span class="pil ${r.verzonden?"weg":"bezig"}">${r.verzonden?"verzonden":"bezig"}</span></button>`).join("")
+    : `<div class="kaart leeg"><p><b>Nog geen rondgang op deze gsm.</b></p><p class="uitleg" style="margin-top:6px">Start een rondgang, neem per vaststelling een foto en schrijf er kort bij wat je ziet. Op het einde verstuur je alles in één mail naar het preventieprogramma.</p></div>`)
+    + (gebouwen().length ? "" : `<div class="kaart uitleg">De gebouwenlijst is nog niet ingeladen. Open de link die het preventieprogramma voor je maakt (Rondgangen → Rondgang-app). Je kan het gebouw ook zelf intypen.</div>`);
+  document.querySelectorAll(".rg-it").forEach(b=>b.onclick = ()=>{ staat = {scherm:"rg", rid:b.dataset.id}; toon(); });
+  onder(`<button class="knop hoofd" id="nieuw">+ Nieuwe rondgang</button>`);
+  $("#nieuw").onclick = async ()=>{ const r = {id:nieuwId(), gebouw:"", datum:vandaag(), deelnemers:ls("rg-naam")||"", algemeen:"", punten:[], verzonden:""}; await bewaar(r); staat = {scherm:"rg", rid:r.id}; toon(); setTimeout(()=>$("#f-geb")?.focus(), 100); };
+}
+
+function schermRondgang(){
+  const r = huidig(); if(!r){ staat = {scherm:"lijst"}; return toon(); }
+  kop(r.gebouw || "Nieuwe rondgang", dNL(r.datum)+(r.verzonden?" · verzonden":""), true);
+  $("#scherm").innerHTML = `<div class="kaart velden">
+      <div><label class="lbl" for="f-geb">Gebouw / arbeidsplaats</label><input type="text" id="f-geb" list="dl-geb" value="${esc(r.gebouw)}" placeholder="Typ of kies het gebouw" autocomplete="off">
+        <datalist id="dl-geb">${gebouwen().map(g=>`<option value="${esc(g[1])}">`).join("")}</datalist></div>
+      <div class="rij"><div style="flex:1"><label class="lbl" for="f-dat">Datum</label><input type="date" id="f-dat" value="${esc(r.datum)}"></div></div>
+      <div><label class="lbl" for="f-deel">Deelnemers</label><input type="text" id="f-deel" value="${esc(r.deelnemers)}" placeholder="bv. Jurgen, coördinator, vakbond"></div></div>
+    ${r.punten.length ? r.punten.map((p,i)=>`<div class="kaart"><div class="punt">${p.fotos[0]?`<img class="dm" src="${fotoUrl(p.fotos[0])}" alt="">`:`<div class="dm"></div>`}
+        <div class="tx"><span class="nr">PUNT ${i+1}${p.fotos.length>1?` · ${p.fotos.length} foto's`:""}</span><p>${esc(p.tekst||"(nog geen tekst)")}</p>${p.plaats?`<small>${esc(p.plaats)}</small>`:""}
+          <div class="punt-k">${p.soort==="opmerking"?`<span class="pil opm">opmerking</span>`:`<span class="pil ${esc(p.prio)}">${esc(p.prio)}</span>`}<span style="flex:1"></span>
+            <button class="mini" data-bew="${p.id}">bewerken</button><button class="mini weg" data-weg="${p.id}">verwijderen</button></div></div></div></div>`).join("")
+      : `<div class="kaart leeg uitleg">Nog geen vaststellingen. Tik op <b>+ Vaststelling</b> om een foto te nemen.</div>`}
+    <div class="kaart"><label class="lbl" for="f-alg">Algemene opmerkingen (voor het verslag)</label><textarea id="f-alg" placeholder="bv. algemene indruk, wat goed loopt">${esc(r.algemeen)}</textarea></div>
+    <button class="knop licht" id="verzend" ${r.punten.length||r.algemeen?"":"disabled"}>&#9993; Rondgang verzenden</button>
+    <button class="mini weg" id="rgWeg" style="align-self:center">deze rondgang van de gsm verwijderen</button>`;
+  const lees = ()=>{ r.gebouw = $("#f-geb").value.trim(); r.datum = $("#f-dat").value || vandaag(); r.deelnemers = $("#f-deel").value.trim(); r.algemeen = $("#f-alg").value; bewaar(r); };
+  const zet = ()=>{ lees(); kop(r.gebouw || "Nieuwe rondgang", dNL(r.datum), true); $("#verzend").disabled = !(r.punten.length || r.algemeen); };
+  ["#f-geb","#f-dat","#f-deel","#f-alg"].forEach(s=>$(s).addEventListener("change", zet));
+  $("#f-alg").addEventListener("input", ()=>{ $("#verzend").disabled = !(r.punten.length || $("#f-alg").value); });
+  document.querySelectorAll("[data-bew]").forEach(b=>b.onclick = ()=>{ concept = null; staat = {scherm:"punt", rid:r.id, pid:b.dataset.bew}; toon(); });
+  document.querySelectorAll("[data-weg]").forEach(b=>b.onclick = ()=>bevestig("Dit punt en de foto's ervan verwijderen?", "Verwijderen", async ()=>{ r.punten = r.punten.filter(p=>p.id!==b.dataset.weg); await bewaar(r); toon(); }));
+  $("#verzend").onclick = ()=>{ lees(); verzenden(r); };
+  $("#rgWeg").onclick = ()=>bevestig(r.verzonden ? "Deze rondgang is verzonden. Van de gsm verwijderen?" : "Deze rondgang is nog niet verzonden. Toch verwijderen? De foto's gaan verloren.", "Verwijderen", async ()=>{ lijst = lijst.filter(x=>x.id!==r.id); await dbWeg(r.id); staat = {scherm:"lijst"}; toon(); });
+  onder(`<button class="knop hoofd" id="plus">&#128247; + Vaststelling</button>`);
+  $("#plus").onclick = ()=>{ lees(); concept = {id:nieuwId(), fotos:[], tekst:"", plaats:"", prio:ls("rg-prio")||"Midden", soort:"vaststelling"}; staat = {scherm:"punt", rid:r.id, pid:null}; toon(); $("#camera").click(); };
+}
+
+function schermPunt(){
+  const r = huidig(); if(!r){ staat = {scherm:"lijst"}; return toon(); }
+  if(!concept){ const p = r.punten.find(x=>x.id===staat.pid); concept = p ? {...p, fotos:p.fotos.slice()} : {id:nieuwId(), fotos:[], tekst:"", plaats:"", prio:"Midden", soort:"vaststelling"}; }
+  const c = concept, nieuw = !r.punten.some(p=>p.id===c.id);
+  kop(nieuw ? "Nieuwe vaststelling" : "Vaststelling bewerken", r.gebouw, true);
+  $("#scherm").innerHTML = `<div class="kaart velden">
+      ${c.fotos.length ? `<div class="fotos">${c.fotos.map((f,i)=>`<div><img src="${fotoUrl(f)}" alt="Foto ${i+1}"><button data-fw="${i}" aria-label="Foto verwijderen">&times;</button></div>`).join("")}</div>` : `<p class="uitleg">Nog geen foto.</p>`}
+      <div class="fotoknop"><button class="knop blauw" id="neem">&#128247; Foto nemen</button><button class="knop licht" id="kies">Uit foto's</button></div></div>
+    <div class="kaart velden">
+      <div><label class="lbl" for="p-tekst">Wat stel je vast?</label><textarea id="p-tekst" placeholder="bv. Nooduitgang geblokkeerd door dozen">${esc(c.tekst)}</textarea></div>
+      <div><label class="lbl" for="p-plaats">Waar precies?</label><input type="text" id="p-plaats" value="${esc(c.plaats)}" placeholder="bv. keuken, 1e verdieping"></div>
+      <div><label class="lbl">Soort</label><div class="seg" id="p-soort"><button data-v="vaststelling" class="${c.soort!=="opmerking"?"aan":""}">Vaststelling (actie)</button><button data-v="opmerking" class="${c.soort==="opmerking"?"aan":""}">Enkel opmerking</button></div></div>
+      <div id="prioVak" ${c.soort==="opmerking"?"hidden":""}><label class="lbl">Prioriteit</label><div class="seg prio" id="p-prio">${["Hoog","Midden","Laag"].map(v=>`<button data-v="${v}" class="${c.prio===v?"aan":""}">${v}</button>`).join("")}</div></div></div>`;
+  const lees = ()=>{ c.tekst = $("#p-tekst").value; c.plaats = $("#p-plaats").value; };
+  $("#neem").onclick = ()=>{ lees(); $("#camera").click(); }; $("#kies").onclick = ()=>{ lees(); $("#bib").click(); };
+  document.querySelectorAll("[data-fw]").forEach(b=>b.onclick = ()=>{ lees(); c.fotos.splice(Number(b.dataset.fw), 1); toon(); });
+  $("#p-soort").onclick = e=>{ const b = e.target.closest("button"); if(!b) return; c.soort = b.dataset.v; $("#p-soort").querySelectorAll("button").forEach(x=>x.classList.toggle("aan", x===b)); $("#prioVak").hidden = c.soort==="opmerking"; };
+  $("#p-prio").onclick = e=>{ const b = e.target.closest("button"); if(!b) return; c.prio = b.dataset.v; ls("rg-prio", c.prio); $("#p-prio").querySelectorAll("button").forEach(x=>x.classList.toggle("aan", x===b)); };
+  onder(`<button class="knop licht" id="annul" style="flex:1">Annuleren</button><button class="knop hoofd" id="bew" style="flex:2">Bewaren</button>`);
+  $("#annul").onclick = ()=>{ concept = null; staat = {scherm:"rg", rid:r.id}; toon(); };
+  $("#bew").onclick = async ()=>{ lees(); if(!c.tekst.trim() && !c.fotos.length){ melding("Neem een foto of schrijf wat je vaststelt."); return; }
+    const i = r.punten.findIndex(p=>p.id===c.id); if(i<0) r.punten.push({...c}); else r.punten[i] = {...c}; r.verzonden = ""; await bewaar(r); concept = null; staat = {scherm:"rg", rid:r.id}; toon(); melding("Bewaard op de gsm."); };
+}
+async function fotosErbij(files){ if(staat.scherm!=="punt" || !concept) return; const l = [...(files||[])]; if(!l.length) return;
+  for(const f of l){ const b = await verklein(f); if(b) concept.fotos.push(b); else melding("Een foto kon niet gelezen worden."); } toon(); }
+$("#camera").onchange = e=>{ fotosErbij(e.target.files); e.target.value = ""; };
+$("#bib").onchange = e=>{ fotosErbij(e.target.files); e.target.value = ""; };
+
+function schermInstel(){
+  kop("Instellingen", "", true);
+  $("#scherm").innerHTML = `<div class="kaart velden"><div><label class="lbl" for="i-naam">Jouw naam</label><input type="text" id="i-naam" value="${esc(ls("rg-naam")||"")}" placeholder="komt bij deelnemers en in de mail"></div></div>
+    <div class="kaart"><label class="lbl">Gebouwenlijst</label><p>${gebouwen().length ? `${gebouwen().length} gebouwen ingeladen.` : "Nog niet ingeladen."}</p>
+      <p class="uitleg" style="margin-top:6px">De lijst komt uit het preventieprogramma: Rondgangen → Rondgang-app → link naar je gsm mailen. Open die link op de gsm en de lijst wordt hier onthouden.</p></div>
+    <div class="kaart uitleg">Alles blijft op deze gsm tot je een rondgang verzendt. De foto's worden verkleind zodat de mail niet te zwaar wordt. Verwijder verzonden rondgangen gerust; ze staan dan in het programma.</div>`;
+  $("#i-naam").onchange = e=>ls("rg-naam", e.target.value.trim());
+  onder("");
+}
+
+/* --- verzenden: één mail met een gegevensbestand en de foto's --- */
+async function verzenden(r){
+  if(!r.gebouw){ melding("Kies eerst het gebouw."); $("#f-geb").focus(); return; }
+  const basis = `rondgang-${slug(r.gebouw)}-${r.datum}`, files = [], punten = [];
+  r.punten.forEach((p,i)=>{ const namen = p.fotos.map((f,j)=>`${basis}-p${String(i+1).padStart(2,"0")}-${j+1}.jpg`); namen.forEach((n,j)=>files.push(new File([p.fotos[j]], n, {type:"image/jpeg"})));
+    punten.push({nr:i+1, tekst:p.tekst.trim(), plaats:p.plaats.trim(), prio:p.prio, soort:p.soort, fotos:namen}); });
+  const data = {type:"preventie-rondgang", versie:1, gemaakt:new Date().toISOString(), door:ls("rg-naam")||"", gebouw:{id:gebouwId(r.gebouw), naam:r.gebouw}, datum:r.datum, deelnemers:r.deelnemers, algemeen:r.algemeen.trim(), punten};
+  const json = new File([JSON.stringify(data, null, 1)], basis+".json", {type:"application/json"});
+  const tekst = `Rondgang ${r.gebouw} – ${dNL(r.datum)}\n${punten.length} punten, ${files.length} foto's.\n\n` + punten.map(p=>`${p.nr}. ${p.tekst}${p.plaats?" ("+p.plaats+")":""} – ${p.soort==="opmerking"?"opmerking":p.prio}`).join("\n") + (data.algemeen?`\n\nAlgemeen: ${data.algemeen}`:"") + `\n\nSleep deze mail in de map "Te verwerken mails" van het preventieprogramma.`;
+  const alles = [json, ...files];
+  try{
+    if(navigator.canShare && navigator.canShare({files:alles})){ await navigator.share({files:alles, title:`Rondgang ${r.gebouw} ${dNL(r.datum)}`, text:tekst}); r.verzonden = vandaag(); await bewaar(r); toon(); melding("Verzonden. Sleep de mail op je pc in de map “Te verwerken mails”.", 4000); return; }
+  }catch(e){ if(e && e.name==="AbortError") return; }
+  // reserve: één bestand met de foto's erin, om zelf als bijlage te versturen
+  const metFotos = {...data, fotosData:{}}; for(const f of files) metFotos.fotosData[f.name] = await new Promise(res=>{ const fr = new FileReader(); fr.onload = ()=>res(fr.result); fr.readAsDataURL(f); });
+  const blob = new Blob([JSON.stringify(metFotos)], {type:"application/json"}), a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = basis+".json"; document.body.appendChild(a); a.click(); a.remove();
+  r.verzonden = vandaag(); await bewaar(r); toon(); melding("Delen lukt niet in deze browser. Het bestand is gedownload: stuur het als bijlage naar jezelf.", 6000);
+}
+function bevestig(vraag, knop, ok){ const d = document.createElement("div"); d.className = "bevestig"; d.innerHTML = `<div class="kaart"><p style="font-weight:600">${esc(vraag)}</p><button class="knop hoofd" style="background:var(--rood)">${esc(knop)}</button><button class="knop licht">Annuleren</button></div>`;
+  document.body.appendChild(d); const [j, n] = d.querySelectorAll("button"); j.onclick = ()=>{ d.remove(); ok(); }; n.onclick = ()=>d.remove(); d.onclick = e=>{ if(e.target===d) d.remove(); }; }
+
+$("#terug").onclick = ()=>{ if(staat.scherm==="punt"){ concept = null; staat = {scherm:"rg", rid:staat.rid}; } else staat = {scherm:"lijst"}; toon(); };
+$("#instelKnop").onclick = ()=>{ staat = {scherm:"instel"}; toon(); };
+(async()=>{ leesLink(); db = await dbOpen(); lijst = await dbAlles(); toon(); })();
+</script>
+</body>
+</html>
