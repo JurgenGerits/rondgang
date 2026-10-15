@@ -61,6 +61,19 @@ input:focus, textarea:focus{ outline:2px solid var(--acc); outline-offset:0; bac
 .melding{ position:fixed; left:50%; bottom:calc(env(safe-area-inset-bottom,0px) + 96px); transform:translateX(-50%); background:#1E2A36; color:#fff; padding:11px 16px; border-radius:10px; font-size:14px; z-index:9; max-width:90vw; text-align:center; }
 .vk{ font-size:13px; color:var(--zacht); }
 [hidden]{ display:none !important; }
+/* checklist (versie 2) */
+.cl-kop{ display:flex; align-items:baseline; gap:8px; } .cl-kop b{ flex:1; } .cl-tel{ font-size:13px; color:var(--zacht); white-space:nowrap; }
+.cl-cat{ font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.5px; color:var(--blauw); margin:14px 0 4px; }
+.cl-it{ border-top:1px solid var(--lijn); padding:10px 0; }
+.cl-it p{ font-size:15px; margin-bottom:8px; }
+.cl-k{ display:flex; gap:6px; }
+.cl-k button{ flex:1; border:1px solid var(--lijn); background:#fff; border-radius:10px; padding:10px 4px; font:600 14px inherit; font-family:inherit; color:var(--zacht); }
+.cl-k button.foto{ flex:0 0 48px; font-size:18px; }
+.cl-k button.aan.ok{ background:var(--groen); border-color:var(--groen); color:#fff; } .cl-k button.aan.nok{ background:var(--rood); border-color:var(--rood); color:#fff; } .cl-k button.aan.nvt{ background:#8A94A0; border-color:#8A94A0; color:#fff; }
+.cl-it.nok{ background:#FFF6F5; margin:0 -16px; padding:10px 16px; }
+.cl-extra{ display:flex; flex-direction:column; gap:8px; margin-top:8px; } .cl-extra textarea{ min-height:64px; }
+.cl-fotos{ display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; } .cl-fotos div{ position:relative; width:64px; height:64px; border-radius:8px; overflow:hidden; } .cl-fotos img{ width:100%; height:100%; object-fit:cover; }
+.cl-fotos button{ position:absolute; top:2px; right:2px; width:22px; height:22px; border-radius:50%; border:0; background:rgba(0,0,0,.6); color:#fff; font-size:13px; line-height:1; }
 .bevestig{ position:fixed; inset:0; background:rgba(16,24,40,.45); z-index:8; display:flex; align-items:flex-end; }
 .bevestig .kaart{ width:100%; border-radius:16px 16px 0 0; padding:18px 16px calc(env(safe-area-inset-bottom,0px) + 16px); display:flex; flex-direction:column; gap:10px; }
 </style>
@@ -100,8 +113,10 @@ function laadGebouwenUit(tekst, stil){
   const m = String(tekst||"").match(/#g=([A-Za-z0-9_\-]+)/); if(!m){ if(!stil) melding("In deze tekst staat geen gebouwenlijst. Kopieer de volledige link uit de mail.", 4000); return false; }
   try{ const s = atob(m[1].replace(/-/g,"+").replace(/_/g,"/")); const b = new Uint8Array([...s].map(c=>c.charCodeAt(0))); const j = JSON.parse(new TextDecoder().decode(b));
     if(!Array.isArray(j.g)) throw new Error("geen lijst");
-    const nieuw = JSON.stringify(j.g)!==JSON.stringify(ls("rg-gebouwen")||null); ls("rg-gebouwen", j.g); if(j.n && !ls("rg-naam")) ls("rg-naam", j.n);
-    if(nieuw || !stil) melding(`${j.g.length} gebouwen ingeladen.`); return true;
+    const c = Array.isArray(j.c) ? j.c : (ls("rg-checklists")||[]);
+    const nieuw = JSON.stringify(j.g)!==JSON.stringify(ls("rg-gebouwen")||null) || JSON.stringify(c)!==JSON.stringify(ls("rg-checklists")||null);
+    ls("rg-gebouwen", j.g); ls("rg-checklists", c); if(j.n && !ls("rg-naam")) ls("rg-naam", j.n);
+    if(nieuw || !stil) melding(`${j.g.length} gebouwen${c.length?` en ${c.length} checklist${c.length===1?"":"s"}`:""} ingeladen.`); return true;
   }catch(e){ melding("De gebouwenlijst in deze link kon niet gelezen worden."); return false; } }
 function inlaadKaart(){
   return `<div class="kaart velden"><label class="lbl" for="i-link">Gebouwenlijst inladen</label>
@@ -115,6 +130,8 @@ function inlaadKoppel(){
   $("#i-laad").onclick = ()=>{ if(laadGebouwenUit(t.value)) toon(); };
 }
 const gebouwen = () => ls("rg-gebouwen") || [];
+const checklists = () => ls("rg-checklists") || [];   // [[id, naam, [[itemId, categorie, tekst], …]], …]
+const clVan = r => checklists().find(c=>c[0]===r.checklistId) || null;
 const gebouwId = naam => (gebouwen().find(g=>g[1].toLowerCase()===String(naam||"").trim().toLowerCase())||[])[0] || "";
 
 /* --- foto verkleinen --- */
@@ -150,25 +167,66 @@ function schermRondgang(){
       <div><label class="lbl" for="f-geb">Gebouw / arbeidsplaats</label><input type="text" id="f-geb" list="dl-geb" value="${esc(r.gebouw)}" placeholder="Typ of kies het gebouw" autocomplete="off">
         <datalist id="dl-geb">${gebouwen().map(g=>`<option value="${esc(g[1])}">`).join("")}</datalist></div>
       <div class="rij"><div style="flex:1"><label class="lbl" for="f-dat">Datum</label><input type="date" id="f-dat" value="${esc(r.datum)}"></div></div>
-      <div><label class="lbl" for="f-deel">Deelnemers</label><input type="text" id="f-deel" value="${esc(r.deelnemers)}" placeholder="bv. Jurgen, coördinator, vakbond"></div></div>
+      <div><label class="lbl" for="f-deel">Deelnemers</label><input type="text" id="f-deel" value="${esc(r.deelnemers)}" placeholder="bv. Jurgen, coördinator, vakbond"></div>
+      ${checklists().length ? `<div><label class="lbl" for="f-cl">Checklist</label><select id="f-cl" style="width:100%; font:16px inherit; font-family:inherit; padding:11px 12px; border:1px solid var(--lijn); border-radius:10px; background:var(--veld)"><option value="">— geen checklist —</option>${checklists().map(c=>`<option value="${esc(c[0])}" ${r.checklistId===c[0]?"selected":""}>${esc(c[1])}</option>`).join("")}</select></div>` : ""}</div>
+    ${clBlokHtml(r)}
     ${r.punten.length ? r.punten.map((p,i)=>`<div class="kaart"><div class="punt">${p.fotos[0]?`<img class="dm" src="${fotoUrl(p.fotos[0])}" alt="">`:`<div class="dm"></div>`}
         <div class="tx"><span class="nr">PUNT ${i+1}${p.fotos.length>1?` · ${p.fotos.length} foto's`:""}</span><p>${esc(p.tekst||"(nog geen tekst)")}</p>${p.plaats?`<small>${esc(p.plaats)}</small>`:""}
           <div class="punt-k">${p.soort==="opmerking"?`<span class="pil opm">opmerking</span>`:`<span class="pil ${esc(p.prio)}">${esc(p.prio)}</span>`}<span style="flex:1"></span>
             <button class="mini" data-bew="${p.id}">bewerken</button><button class="mini weg" data-weg="${p.id}">verwijderen</button></div></div></div></div>`).join("")
       : `<div class="kaart leeg uitleg">Nog geen vaststellingen. Tik op <b>+ Vaststelling</b> om een foto te nemen.</div>`}
     <div class="kaart"><label class="lbl" for="f-alg">Algemene opmerkingen (voor het verslag)</label><textarea id="f-alg" placeholder="bv. algemene indruk, wat goed loopt">${esc(r.algemeen)}</textarea></div>
-    <button class="knop licht" id="verzend" ${r.punten.length||r.algemeen?"":"disabled"}>&#9993; Rondgang verzenden</button>
+    <button class="knop licht" id="verzend" ${kanVerzenden(r)?"":"disabled"}>&#9993; Rondgang verzenden</button>
     <button class="mini weg" id="rgWeg" style="align-self:center">deze rondgang van de gsm verwijderen</button>`;
   const lees = ()=>{ r.gebouw = $("#f-geb").value.trim(); r.datum = $("#f-dat").value || vandaag(); r.deelnemers = $("#f-deel").value.trim(); r.algemeen = $("#f-alg").value; bewaar(r); };
-  const zet = ()=>{ lees(); kop(r.gebouw || "Nieuwe rondgang", dNL(r.datum), true); $("#verzend").disabled = !(r.punten.length || r.algemeen); };
+  const zet = ()=>{ lees(); kop(r.gebouw || "Nieuwe rondgang", dNL(r.datum), true); $("#verzend").disabled = !kanVerzenden(r); };
   ["#f-geb","#f-dat","#f-deel","#f-alg"].forEach(s=>$(s).addEventListener("change", zet));
-  $("#f-alg").addEventListener("input", ()=>{ $("#verzend").disabled = !(r.punten.length || $("#f-alg").value); });
+  $("#f-alg").addEventListener("input", ()=>{ $("#verzend").disabled = !(kanVerzenden(r) || $("#f-alg").value); });
+  if($("#f-cl")) $("#f-cl").onchange = async e=>{ lees(); r.checklistId = e.target.value; r.checklist = r.checklist||{}; r.verzonden = ""; await bewaar(r); toon(); };
+  clKoppel(r);
   document.querySelectorAll("[data-bew]").forEach(b=>b.onclick = ()=>{ concept = null; staat = {scherm:"punt", rid:r.id, pid:b.dataset.bew}; toon(); });
   document.querySelectorAll("[data-weg]").forEach(b=>b.onclick = ()=>bevestig("Dit punt en de foto's ervan verwijderen?", "Verwijderen", async ()=>{ r.punten = r.punten.filter(p=>p.id!==b.dataset.weg); await bewaar(r); toon(); }));
   $("#verzend").onclick = ()=>{ lees(); verzenden(r); };
   $("#rgWeg").onclick = ()=>bevestig(r.verzonden ? "Deze rondgang is verzonden. Van de gsm verwijderen?" : "Deze rondgang is nog niet verzonden. Toch verwijderen? De foto's gaan verloren.", "Verwijderen", async ()=>{ lijst = lijst.filter(x=>x.id!==r.id); await dbWeg(r.id); staat = {scherm:"lijst"}; toon(); });
   onder(`<button class="knop hoofd" id="plus">&#128247; + Vaststelling</button>`);
   $("#plus").onclick = ()=>{ lees(); concept = {id:nieuwId(), fotos:[], tekst:"", plaats:"", prio:ls("rg-prio")||"Midden", soort:"vaststelling"}; staat = {scherm:"punt", rid:r.id, pid:null}; toon(); $("#camera").click(); };
+}
+
+/* --- checklist (versie 2): tikken verandert alleen dat ene punt; het scherm verspringt niet --- */
+let clFotoDoel = null;
+function clAntw(r, iid){ r.checklist = r.checklist||{}; return r.checklist[iid] = r.checklist[iid]||{}; }
+function clTel(r, cl){ const a = r.checklist||{}, n = cl[2].length, b = cl[2].filter(i=>a[i[0]]?.st).length, nok = cl[2].filter(i=>a[i[0]]?.st==="nok").length; return `${b}/${n} beantwoord${nok?` · ${nok} niet in orde`:""}`; }
+function kanVerzenden(r){ return !!(r.punten.length || r.algemeen || Object.values(r.checklist||{}).some(a=>a.st)); }
+function clBlokHtml(r){
+  const cl = clVan(r); if(!cl) return "";
+  const cats = [...new Set(cl[2].map(i=>i[1]))];
+  return `<div class="kaart" id="cl-blok"><div class="cl-kop"><b>${esc(cl[1])}</b><span class="cl-tel" id="cl-tel">${clTel(r, cl)}</span></div>
+    ${cats.map(c=>`<div class="cl-cat">${esc(c)}</div>${cl[2].filter(i=>i[1]===c).map(i=>clItemHtml(r, i)).join("")}`).join("")}
+    <button class="knop licht" id="cl-rest" style="margin-top:12px">Alle open punten “in orde”</button></div>`;
+}
+function clItemHtml(r, i){
+  const a = (r.checklist||{})[i[0]]||{}, f = a.fotos||[];
+  return `<div class="cl-it ${a.st==="nok"?"nok":""}" id="ci-${esc(i[0])}" data-i="${esc(i[0])}"><p>${esc(i[2])}</p>
+    <div class="cl-k">${[["ok","in orde"],["nok","niet in orde"],["nvt","n.v.t."]].map(([s,t])=>`<button class="${s} ${a.st===s?"aan":""}" data-st="${s}">${t}</button>`).join("")}<button class="foto" data-foto="1" aria-label="Foto nemen">&#128247;</button></div>
+    ${a.st==="nok" ? `<div class="cl-extra"><textarea data-opm="1" placeholder="Toelichting / te nemen maatregel">${esc(a.opm||"")}</textarea>
+      <div class="seg prio">${["Hoog","Midden","Laag"].map(v=>`<button data-prio="${v}" data-v="${v}" class="${(a.prio||"Midden")===v?"aan":""}">${v}</button>`).join("")}</div></div>` : ""}
+    ${f.length ? `<div class="cl-fotos">${f.map((b,j)=>`<div><img src="${fotoUrl(b)}" alt=""><button data-fw="${j}" aria-label="Foto verwijderen">&times;</button></div>`).join("")}</div>` : ""}</div>`;
+}
+function clItemVernieuw(r, iid){ const cl = clVan(r), i = cl && cl[2].find(x=>x[0]===iid), el = document.getElementById("ci-"+iid); if(el && i) el.outerHTML = clItemHtml(r, i); const t = $("#cl-tel"); if(t && cl) t.textContent = clTel(r, cl); $("#verzend") && ($("#verzend").disabled = !kanVerzenden(r)); }
+function clKoppel(r){
+  const blok = $("#cl-blok"); if(!blok) return;
+  blok.addEventListener("click", async e=>{
+    const it = e.target.closest(".cl-it"), knop = e.target.closest("button"); if(!it || !knop) return; const iid = it.dataset.i, a = clAntw(r, iid);
+    if(knop.dataset.foto){ clFotoDoel = iid; $("#camera").click(); return; }      // meteen, zodat de iPhone de camera toelaat
+    if(knop.dataset.st){ a.st = a.st===knop.dataset.st ? undefined : knop.dataset.st; if(!a.st) delete a.st; if(a.st==="nok" && !a.prio) a.prio = "Midden"; }
+    else if(knop.dataset.prio) a.prio = knop.dataset.prio;
+    else if(knop.dataset.fw!==undefined){ (a.fotos||[]).splice(Number(knop.dataset.fw), 1); }
+    else return;
+    r.verzonden = ""; clItemVernieuw(r, iid); await bewaar(r);
+  });
+  blok.addEventListener("change", async e=>{ if(!e.target.dataset.opm) return; const iid = e.target.closest(".cl-it").dataset.i; clAntw(r, iid).opm = e.target.value; r.verzonden = ""; await bewaar(r); });
+  const rest = $("#cl-rest"); if(rest) rest.onclick = async ()=>{ const cl = clVan(r); const open = cl[2].filter(i=>!(r.checklist||{})[i[0]]?.st); if(!open.length){ melding("Alle punten zijn al beantwoord."); return; }
+    open.forEach(i=>{ clAntw(r, i[0]).st = "ok"; }); r.verzonden = ""; open.forEach(i=>clItemVernieuw(r, i[0])); await bewaar(r); melding(`${open.length} punten op “in orde” gezet.`); };
 }
 
 function schermPunt(){
@@ -194,7 +252,11 @@ function schermPunt(){
   $("#bew").onclick = async ()=>{ lees(); if(!c.tekst.trim() && !c.fotos.length){ melding("Neem een foto of schrijf wat je vaststelt."); return; }
     const i = r.punten.findIndex(p=>p.id===c.id); if(i<0) r.punten.push({...c}); else r.punten[i] = {...c}; r.verzonden = ""; await bewaar(r); concept = null; staat = {scherm:"rg", rid:r.id}; toon(); melding("Bewaard op de gsm."); };
 }
-async function fotosErbij(files){ if(staat.scherm!=="punt" || !concept) return; const l = [...(files||[])]; if(!l.length) return;
+async function fotosErbij(files){
+  if(clFotoDoel && staat.scherm==="rg"){ const r = huidig(), iid = clFotoDoel; clFotoDoel = null; if(!r) return; const l = [...(files||[])]; if(!l.length) return;
+    const a = clAntw(r, iid); a.fotos = a.fotos||[]; for(const f of l){ const b = await verklein(f); if(b) a.fotos.push(b); else melding("Een foto kon niet gelezen worden."); }
+    r.verzonden = ""; await bewaar(r); clItemVernieuw(r, iid); return; }
+  if(staat.scherm!=="punt" || !concept) return; const l = [...(files||[])]; if(!l.length) return;
   for(const f of l){ const b = await verklein(f); if(b) concept.fotos.push(b); else melding("Een foto kon niet gelezen worden."); } toon(); }
 $("#camera").onchange = e=>{ fotosErbij(e.target.files); e.target.value = ""; };
 $("#bib").onchange = e=>{ fotosErbij(e.target.files); e.target.value = ""; };
@@ -217,9 +279,14 @@ async function verzenden(r){
   const basis = `rondgang-${slug(r.gebouw)}-${r.datum}`, files = [], punten = [];
   r.punten.forEach((p,i)=>{ const namen = p.fotos.map((f,j)=>`${basis}-p${String(i+1).padStart(2,"0")}-${j+1}.jpg`); namen.forEach((n,j)=>files.push(new File([p.fotos[j]], n, {type:"image/jpeg"})));
     punten.push({nr:i+1, tekst:p.tekst.trim(), plaats:p.plaats.trim(), prio:p.prio, soort:p.soort, fotos:namen}); });
-  const data = {type:"preventie-rondgang", versie:1, gemaakt:new Date().toISOString(), door:ls("rg-naam")||"", gebouw:{id:gebouwId(r.gebouw), naam:r.gebouw}, datum:r.datum, deelnemers:r.deelnemers, algemeen:r.algemeen.trim(), punten};
+  const cl = clVan(r), antwoorden = {};
+  if(cl) cl[2].forEach(i=>{ const a = (r.checklist||{})[i[0]]; if(!a || !a.st && !(a.fotos||[]).length) return;
+    const namen = (a.fotos||[]).map((f,j)=>`${basis}-c${slug(i[0])}-${j+1}.jpg`); namen.forEach((n,j)=>files.push(new File([a.fotos[j]], n, {type:"image/jpeg"})));
+    antwoorden[i[0]] = {st:a.st||"", opm:(a.opm||"").trim(), prio:a.prio||"Midden", fotos:namen}; });
+  const data = {type:"preventie-rondgang", versie:2, ...(cl ? {checklist:{id:cl[0], naam:cl[1], antwoorden}} : {}), gemaakt:new Date().toISOString(), door:ls("rg-naam")||"", gebouw:{id:gebouwId(r.gebouw), naam:r.gebouw}, datum:r.datum, deelnemers:r.deelnemers, algemeen:r.algemeen.trim(), punten};
   const json = new File([JSON.stringify(data, null, 1)], basis+".json", {type:"application/json"});
-  const tekst = `Rondgang ${r.gebouw} – ${dNL(r.datum)}\n${punten.length} punten, ${files.length} foto's.\n\n` + punten.map(p=>`${p.nr}. ${p.tekst}${p.plaats?" ("+p.plaats+")":""} – ${p.soort==="opmerking"?"opmerking":p.prio}`).join("\n") + (data.algemeen?`\n\nAlgemeen: ${data.algemeen}`:"") + `\n\nSleep deze mail in de map "Te verwerken mails" van het preventieprogramma.`;
+  const clNok = cl ? cl[2].filter(i=>antwoorden[i[0]]?.st==="nok") : [];
+  const tekst = `Rondgang ${r.gebouw} – ${dNL(r.datum)}\n${punten.length} punten, ${files.length} foto's.${cl?`\nChecklist ${cl[1]}: ${Object.values(antwoorden).filter(a=>a.st).length}/${cl[2].length} beantwoord, ${clNok.length} niet in orde${clNok.length?":\n"+clNok.map(i=>"– "+i[2]+(antwoorden[i[0]].opm?" ("+antwoorden[i[0]].opm+")":"")).join("\n"):""}.`:""}\n\n` + punten.map(p=>`${p.nr}. ${p.tekst}${p.plaats?" ("+p.plaats+")":""} – ${p.soort==="opmerking"?"opmerking":p.prio}`).join("\n") + (data.algemeen?`\n\nAlgemeen: ${data.algemeen}`:"") + `\n\nSleep deze mail in de map "Te verwerken mails" van het preventieprogramma.`;
   const alles = [json, ...files];
   try{
     if(navigator.canShare && navigator.canShare({files:alles})){ await navigator.share({files:alles, title:`Rondgang ${r.gebouw} ${dNL(r.datum)}`, text:tekst}); r.verzonden = vandaag(); await bewaar(r); toon(); melding("Verzonden. Sleep de mail op je pc in de map “Te verwerken mails”.", 4000); return; }
