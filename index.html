@@ -68,7 +68,7 @@ input:focus, textarea:focus{ outline:2px solid var(--acc); outline-offset:0; bac
 .cl-it p{ font-size:15px; margin-bottom:8px; }
 .cl-k{ display:flex; gap:6px; }
 .cl-k button{ flex:1; border:1px solid var(--lijn); background:#fff; border-radius:10px; padding:10px 4px; font:600 14px inherit; font-family:inherit; color:var(--zacht); }
-.cl-k button.foto{ flex:0 0 48px; font-size:18px; }
+.cl-k button.foto{ flex:0 0 42px; font-size:17px; padding:10px 0; }
 .cl-k button.aan.ok{ background:var(--groen); border-color:var(--groen); color:#fff; } .cl-k button.aan.nok{ background:var(--rood); border-color:var(--rood); color:#fff; } .cl-k button.aan.nvt{ background:#8A94A0; border-color:#8A94A0; color:#fff; }
 .cl-it.nok{ background:#FFF6F5; margin:0 -16px; padding:10px 16px; }
 .cl-extra{ display:flex; flex-direction:column; gap:8px; margin-top:8px; } .cl-extra textarea{ min-height:64px; }
@@ -207,7 +207,7 @@ function clBlokHtml(r){
 function clItemHtml(r, i){
   const a = (r.checklist||{})[i[0]]||{}, f = a.fotos||[];
   return `<div class="cl-it ${a.st==="nok"?"nok":""}" id="ci-${esc(i[0])}" data-i="${esc(i[0])}"><p>${esc(i[2])}</p>
-    <div class="cl-k">${[["ok","in orde"],["nok","niet in orde"],["nvt","n.v.t."]].map(([s,t])=>`<button class="${s} ${a.st===s?"aan":""}" data-st="${s}">${t}</button>`).join("")}<button class="foto" data-foto="1" aria-label="Foto nemen">&#128247;</button></div>
+    <div class="cl-k">${[["ok","in orde"],["nok","niet in orde"],["nvt","n.v.t."]].map(([s,t])=>`<button class="${s} ${a.st===s?"aan":""}" data-st="${s}">${t}</button>`).join("")}<button class="foto" data-foto="1" aria-label="Foto nemen">&#128247;</button><button class="foto" data-bib="1" aria-label="Foto uit je bibliotheek">&#128444;</button></div>
     ${a.st==="nok" ? `<div class="cl-extra"><textarea data-opm="1" placeholder="Toelichting / te nemen maatregel">${esc(a.opm||"")}</textarea>
       <div class="seg prio">${["Hoog","Midden","Laag"].map(v=>`<button data-prio="${v}" data-v="${v}" class="${(a.prio||"Midden")===v?"aan":""}">${v}</button>`).join("")}</div></div>` : ""}
     ${f.length ? `<div class="cl-fotos">${f.map((b,j)=>`<div><img src="${fotoUrl(b)}" alt=""><button data-fw="${j}" aria-label="Foto verwijderen">&times;</button></div>`).join("")}</div>` : ""}</div>`;
@@ -218,6 +218,7 @@ function clKoppel(r){
   blok.addEventListener("click", async e=>{
     const it = e.target.closest(".cl-it"), knop = e.target.closest("button"); if(!it || !knop) return; const iid = it.dataset.i, a = clAntw(r, iid);
     if(knop.dataset.foto){ clFotoDoel = iid; $("#camera").click(); return; }      // meteen, zodat de iPhone de camera toelaat
+    if(knop.dataset.bib){ clFotoDoel = iid; $("#bib").click(); return; }         // bestaande foto('s) uit de bibliotheek
     if(knop.dataset.st){ a.st = a.st===knop.dataset.st ? undefined : knop.dataset.st; if(!a.st) delete a.st; if(a.st==="nok" && !a.prio) a.prio = "Midden"; }
     else if(knop.dataset.prio) a.prio = knop.dataset.prio;
     else if(knop.dataset.fw!==undefined){ (a.fotos||[]).splice(Number(knop.dataset.fw), 1); }
