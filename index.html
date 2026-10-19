@@ -4,11 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Rondgang">
+<meta name="apple-mobile-web-app-title" content="Gebouwen">
 <meta name="theme-color" content="#1F4E79">
-<title>Rondgang preventie</title>
+<title>Rondgang &amp; conditiestaat</title>
 <style>
-/* Rondgang-app — gsm eerst; één kolom, grote knoppen, duim onderaan */
+/* Gebouwen-app: rondgang (preventie) en conditiestaat (projectopvolging) — gsm eerst; één kolom, grote knoppen, duim onderaan */
 :root{ --blauw:#1F4E79; --blauw-d:#163A5B; --acc:#0584AC; --oranje:#E87722; --rood:#C62828; --groen:#2E7D32;
   --bg:#F2F5F8; --kaart:#FFFFFF; --tekst:#1E2A36; --zacht:#5F6B76; --lijn:#E1E6EC; --veld:#F7F9FB; }
 *{ box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
@@ -76,10 +76,35 @@ input:focus, textarea:focus{ outline:2px solid var(--acc); outline-offset:0; bac
 .cl-fotos button{ position:absolute; top:2px; right:2px; width:22px; height:22px; border-radius:50%; border:0; background:rgba(0,0,0,.6); color:#fff; font-size:13px; line-height:1; }
 .bevestig{ position:fixed; inset:0; background:rgba(16,24,40,.45); z-index:8; display:flex; align-items:flex-end; }
 .bevestig .kaart{ width:100%; border-radius:16px 16px 0 0; padding:18px 16px calc(env(safe-area-inset-bottom,0px) + 16px); display:flex; flex-direction:column; gap:10px; }
+/* startscherm en conditiestaat */
+.tegel{ display:flex; gap:14px; align-items:center; width:100%; text-align:left; background:var(--kaart); border:0; border-radius:16px; padding:18px 16px; box-shadow:0 1px 3px rgba(16,24,40,.08); font:inherit; color:inherit; }
+.tegel-ic{ font-size:34px; width:56px; height:56px; display:grid; place-items:center; background:#EAF1F8; border-radius:14px; flex:none; }
+.tegel-tx{ flex:1; min-width:0; } .tegel-tx b{ display:block; font-size:18px; color:var(--blauw); } .tegel-tx span{ color:var(--zacht); font-size:13px; }
+select.sel{ width:100%; font:16px inherit; font-family:inherit; padding:11px 12px; border:1px solid var(--lijn); border-radius:10px; background:var(--veld); color:var(--tekst); }
+.c-voortgang{ display:flex; justify-content:space-between; gap:8px; font-size:14px; } .c-voortgang span{ color:var(--zacht); }
+.c-balk{ height:8px; background:#E6EBF0; border-radius:4px; overflow:hidden; margin-top:8px; } .c-balk i{ display:block; height:100%; background:var(--groen); transition:width .3s; }
+.c-bol{ display:inline-grid; place-items:center; width:24px; height:24px; border-radius:50%; color:#fff; font-size:12px; font-weight:800; flex:none; }
+.c-bol.leeg{ background:#fff; border:2px dashed #C3CCD6; } .c-bol.nvt{ background:#B9C4CF; }
+.c-groep{ padding:0; overflow:hidden; } .c-groep summary{ list-style:none; display:flex; align-items:center; gap:10px; padding:14px 16px; font-size:16px; cursor:pointer; }
+.c-groep summary::-webkit-details-marker{ display:none; } .c-groep summary b{ flex:1; } .c-groep summary::after{ content:"\203A"; font-size:22px; color:var(--zacht); transition:transform .2s; } .c-groep[open] summary::after{ transform:rotate(90deg); }
+.c-gtel{ font-size:13px; color:var(--zacht); font-weight:700; white-space:nowrap; } .c-gtel.ok{ color:var(--groen); }
+.c-deel{ border-top:1px solid var(--lijn); padding:12px 16px; } .c-deel.gb{ background:#FFF8F2; }
+.c-dkop{ display:flex; align-items:center; gap:10px; margin-bottom:8px; } .c-dnaam{ font-weight:600; font-size:15px; }
+.c-k{ display:flex; gap:6px; } .c-k button{ flex:1; border:1px solid var(--lijn); background:#fff; border-radius:10px; padding:10px 4px; font:600 13px inherit; font-family:inherit; color:var(--zacht); }
+.c-k button.gb{ color:var(--oranje); border-color:#F3C9A5; } .c-k button.foto{ flex:0 0 40px; font-size:16px; padding:10px 0; } .c-k button:disabled{ opacity:.35; }
+.c-k button.aan.ok{ background:var(--groen); border-color:var(--groen); color:#fff; } .c-k button.aan.nvt{ background:#8A94A0; border-color:#8A94A0; color:#fff; }
+.c-gb{ display:flex; gap:10px; align-items:center; width:100%; text-align:left; background:#fff; border:1px solid #F1D9C4; border-radius:10px; padding:8px 10px; margin-top:8px; font:inherit; color:inherit; }
+.c-gb b{ display:block; font-size:14px; } .c-gb small{ display:block; color:var(--zacht); font-size:12px; }
+.c-rest{ margin:4px 16px 14px; width:calc(100% - 32px); font-size:14px; padding:11px; }
+.c-seg button{ font-size:13px; padding:10px 2px; }
+.c-score{ display:flex; align-items:center; gap:10px; background:var(--veld); border-radius:10px; padding:10px 12px; } .c-score .c-bol{ width:34px; height:34px; font-size:16px; }
+.chips{ display:flex; flex-wrap:wrap; gap:6px; } .chips button{ border:1px solid var(--lijn); background:#fff; border-radius:20px; padding:8px 12px; font:600 13px inherit; font-family:inherit; color:var(--zacht); }
+.chips button.aan{ background:var(--blauw); border-color:var(--blauw); color:#fff; }
+.c-adres{ display:flex; align-items:center; gap:10px; background:var(--veld); border-radius:10px; padding:10px 12px; } .c-adres b{ flex:1; overflow-wrap:anywhere; } .c-adres .knop{ width:auto; padding:8px 12px; font-size:14px; }
 </style>
 </head>
 <body>
-<div class="kop"><button id="terug" hidden>&#8249; Terug</button><h1 id="titel">Rondgangen<small id="sub">Preventie Houthalen-Helchteren</small></h1><button id="instelKnop">&#9881;</button></div>
+<div class="kop"><button id="terug" hidden>&#8249; Terug</button><h1 id="titel">Gebouwen<small id="sub">Houthalen-Helchteren</small></h1><button id="instelKnop">&#9881;</button></div>
 <main id="scherm"></main>
 <div class="onder" id="onder"><div class="binnen" id="onderBinnen"></div></div>
 <input type="file" id="camera" accept="image/*" capture="environment" hidden>
@@ -87,7 +112,7 @@ input:focus, textarea:focus{ outline:2px solid var(--acc); outline-offset:0; bac
 <script>
 "use strict";
 const MAX = 1600, KWAL = 0.72;
-let staat = {scherm:"lijst", rid:null, pid:null}, lijst = [], db = null, concept = null;
+let staat = {scherm:"start", rid:null, pid:null}, lijst = [], db = null, concept = null;
 const $ = s => document.querySelector(s);
 const esc = s => String(s??"").replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const vandaag = () => { const d = new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); };
@@ -98,7 +123,7 @@ function melding(t, ms){ const m = document.createElement("div"); m.className = 
 function ls(k, v){ try{ if(v===undefined) return JSON.parse(localStorage.getItem(k)||"null"); localStorage.setItem(k, JSON.stringify(v)); }catch(e){ return null; } }
 
 /* --- opslag op de gsm (IndexedDB; foto's als blob) --- */
-function dbOpen(){ return new Promise(res=>{ try{ const r = indexedDB.open("rondgang-app", 1); r.onupgradeneeded = ()=>r.result.createObjectStore("rg", {keyPath:"id"}); r.onsuccess = ()=>res(r.result); r.onerror = ()=>res(null); }catch(e){ res(null); } }); }
+function dbOpen(){ return new Promise(res=>{ try{ const r = indexedDB.open("rondgang-app", 2); r.onupgradeneeded = ()=>{ const d = r.result; if(!d.objectStoreNames.contains("rg")) d.createObjectStore("rg", {keyPath:"id"}); if(!d.objectStoreNames.contains("cm")) d.createObjectStore("cm", {keyPath:"id"}); }; r.onsuccess = ()=>res(r.result); r.onerror = ()=>res(null); }catch(e){ res(null); } }); }
 function dbAlles(){ return new Promise(res=>{ if(!db) return res(lijst); try{ const q = db.transaction("rg").objectStore("rg").getAll(); q.onsuccess = ()=>res(q.result||[]); q.onerror = ()=>res([]); }catch(e){ res([]); } }); }
 function dbZet(r){ return new Promise(res=>{ if(!db) return res(); try{ const t = db.transaction("rg","readwrite"); t.objectStore("rg").put(r); t.oncomplete = ()=>res(); t.onerror = ()=>{ melding("Bewaren op de gsm lukte niet (geheugen vol?)."); res(); }; }catch(e){ res(); } }); }
 function dbWeg(id){ return new Promise(res=>{ if(!db) return res(); try{ const t = db.transaction("rg","readwrite"); t.objectStore("rg").delete(id); t.oncomplete = ()=>res(); t.onerror = ()=>res(); }catch(e){ res(); } }); }
@@ -107,9 +132,10 @@ async function bewaar(r){ r.gewijzigd = new Date().toISOString(); const i = lijs
 /* --- gebouwenlijst: komt mee in de link uit het programma (#g=…), wordt op de gsm onthouden ---
    De lijst blijft in het adres staan: een app op het beginscherm van de iPhone heeft een eigen geheugen, los van Safari,
    en leest de lijst zo bij elke start opnieuw uit haar eigen adres. (Het deel na # wordt nooit naar de server gestuurd.) */
-function leesLink(){ const h = location.hash; if(h.startsWith("#g=")) laadGebouwenUit(h, true); }
+function leesLink(){ const h = location.hash; if(h.startsWith("#g=")) laadGebouwenUit(h, true); else if(h.startsWith("#c=")) laadConditieUit(h, true); }
 // leest de gebouwenlijst uit een link of uit geplakte tekst die "#g=…" bevat; geeft true terug als het lukte
 function laadGebouwenUit(tekst, stil){
+  if(/#c=/.test(String(tekst||"")) && !/#g=/.test(String(tekst||""))) return laadConditieUit(tekst, stil);
   const m = String(tekst||"").match(/#g=([A-Za-z0-9_\-]+)/); if(!m){ if(!stil) melding("In deze tekst staat geen gebouwenlijst. Kopieer de volledige link uit de mail.", 4000); return false; }
   try{ const s = atob(m[1].replace(/-/g,"+").replace(/_/g,"/")); const b = new Uint8Array([...s].map(c=>c.charCodeAt(0))); const j = JSON.parse(new TextDecoder().decode(b));
     if(!Array.isArray(j.g)) throw new Error("geen lijst");
@@ -119,15 +145,15 @@ function laadGebouwenUit(tekst, stil){
     if(nieuw || !stil) melding(`${j.g.length} gebouwen${c.length?` en ${c.length} checklist${c.length===1?"":"s"}`:""} ingeladen.`); return true;
   }catch(e){ melding("De gebouwenlijst in deze link kon niet gelezen worden."); return false; } }
 function inlaadKaart(){
-  return `<div class="kaart velden"><label class="lbl" for="i-link">Gebouwenlijst inladen</label>
-    <p class="uitleg">Kopieer in de mail uit het preventieprogramma de link (lang drukken op “Rondgang-app openen” → Kopieer) en plak ze hieronder.</p>
+  return `<div class="kaart velden"><label class="lbl" for="i-link">Link uit het programma inladen</label>
+    <p class="uitleg">Kopieer in de mail uit het preventieprogramma (rondgang) of uit projectopvolging (conditiestaat) de link: lang drukken op de link → Kopieer. Plak ze hieronder.</p>
     <textarea id="i-link" rows="3" placeholder="plak hier de link"></textarea>
     <div style="display:flex; gap:8px; margin-top:8px"><button class="knop" id="i-plak">Plakken</button><button class="knop hoofd" id="i-laad">Inladen</button></div></div>`;
 }
 function inlaadKoppel(){
   const t = $("#i-link"); if(!t) return;
   $("#i-plak").onclick = async ()=>{ try{ t.value = await navigator.clipboard.readText(); }catch(e){ melding("Plakken lukte niet; houd je vinger in het vak en kies Plak.", 4000); } };
-  $("#i-laad").onclick = ()=>{ if(laadGebouwenUit(t.value)) toon(); };
+  $("#i-laad").onclick = ()=>{ if(laadGebouwenUit(t.value)){ if(staat.scherm==="start" || staat.scherm==="lijst" || staat.scherm==="cLijst") staat = {scherm:"start"}; toon(); } };
 }
 const gebouwen = () => ls("rg-gebouwen") || [];
 const checklists = () => ls("rg-checklists") || [];   // [[id, naam, [[itemId, categorie, tekst], …]], …]
@@ -144,16 +170,17 @@ const urls = new Map(); function fotoUrl(b){ if(!urls.has(b)) urls.set(b, URL.cr
 /* --- schermen --- */
 function kop(titel, sub, terug){ $("#titel").innerHTML = `${esc(titel)}<small>${esc(sub||"")}</small>`; $("#terug").hidden = !terug; }
 function onder(html){ $("#onderBinnen").innerHTML = html; $("#onder").hidden = !html; }
-function toon(){ window.scrollTo(0,0); ({lijst:schermLijst, rg:schermRondgang, punt:schermPunt, instel:schermInstel})[staat.scherm](); }
+function toon(){ window.scrollTo(0,0); if(staat.scherm==="start" && !beide()) staat = {scherm: heeftC() ? "cLijst" : heeftR() ? "lijst" : "start"};
+  ({start:schermStart, lijst:schermLijst, rg:schermRondgang, punt:schermPunt, instel:schermInstel, cLijst:schermCLijst, cMeting:schermCMeting, cGebrek:schermCGebrek})[staat.scherm](); }
 const huidig = () => lijst.find(r=>r.id===staat.rid);
 
 function schermLijst(){
-  kop("Rondgangen", "Preventie Houthalen-Helchteren", false);
+  kop("Rondgangen", "Preventie Houthalen-Helchteren", beide());
   const l = lijst.slice().sort((a,b)=>(b.gewijzigd||"").localeCompare(a.gewijzigd||""));
   $("#scherm").innerHTML = (l.length ? l.map(r=>`<button class="rg-it" data-id="${r.id}"><div style="flex:1; min-width:0"><b>${esc(r.gebouw||"Gebouw nog te kiezen")}</b><span>${dNL(r.datum)} · ${r.punten.length} punt${r.punten.length===1?"":"en"} · ${r.punten.reduce((n,p)=>n+p.fotos.length,0)} foto's</span></div>
       <span class="pil ${r.verzonden?"weg":"bezig"}">${r.verzonden?"verzonden":"bezig"}</span></button>`).join("")
     : `<div class="kaart leeg"><p><b>Nog geen rondgang op deze gsm.</b></p><p class="uitleg" style="margin-top:6px">Start een rondgang, neem per vaststelling een foto en schrijf er kort bij wat je ziet. Op het einde verstuur je alles in één mail naar het preventieprogramma.</p></div>`)
-    + (gebouwen().length ? "" : inlaadKaart());
+    + (gebouwen().length || heeftC() ? "" : inlaadKaart());
   document.querySelectorAll(".rg-it").forEach(b=>b.onclick = ()=>{ staat = {scherm:"rg", rid:b.dataset.id}; toon(); });
   inlaadKoppel();
   onder(`<button class="knop hoofd" id="nieuw">+ Nieuwe rondgang</button>`);
@@ -254,6 +281,7 @@ function schermPunt(){
     const i = r.punten.findIndex(p=>p.id===c.id); if(i<0) r.punten.push({...c}); else r.punten[i] = {...c}; r.verzonden = ""; await bewaar(r); concept = null; staat = {scherm:"rg", rid:r.id}; toon(); melding("Bewaard op de gsm."); };
 }
 async function fotosErbij(files){
+  if(cFotoDoel) return cFotosErbij(files);
   if(clFotoDoel && staat.scherm==="rg"){ const r = huidig(), iid = clFotoDoel; clFotoDoel = null; if(!r) return; const l = [...(files||[])]; if(!l.length) return;
     const a = clAntw(r, iid); a.fotos = a.fotos||[]; for(const f of l){ const b = await verklein(f); if(b) a.fotos.push(b); else melding("Een foto kon niet gelezen worden."); }
     r.verzonden = ""; await bewaar(r); clItemVernieuw(r, iid); return; }
@@ -264,11 +292,14 @@ $("#bib").onchange = e=>{ fotosErbij(e.target.files); e.target.value = ""; };
 
 function schermInstel(){
   kop("Instellingen", "", true);
-  $("#scherm").innerHTML = `<div class="kaart velden"><div><label class="lbl" for="i-naam">Jouw naam</label><input type="text" id="i-naam" value="${esc(ls("rg-naam")||"")}" placeholder="komt bij deelnemers en in de mail"></div></div>
-    <div class="kaart"><label class="lbl">Gebouwenlijst</label><p>${gebouwen().length ? `${gebouwen().length} gebouwen ingeladen.` : "Nog niet ingeladen."}</p>
-      <p class="uitleg" style="margin-top:6px">De lijst komt uit het preventieprogramma: Rondgangen → Rondgang-app → link naar je gsm mailen. Zijn er gebouwen bijgekomen, plak dan hieronder de nieuwe link.</p></div>
+  const namen = (cData()?.n)||[];
+  $("#scherm").innerHTML = `<div class="kaart velden"><div><label class="lbl" for="i-naam">Jouw naam</label><input type="text" id="i-naam" list="dl-namen" value="${esc(ls("rg-naam")||"")}" placeholder="kies of typ je naam"><datalist id="dl-namen">${namen.map(n=>`<option value="${esc(n)}">`).join("")}</datalist></div></div>
+    <div class="kaart"><label class="lbl">Rondgang (preventie)</label><p>${gebouwen().length ? `${gebouwen().length} gebouwen ingeladen.` : "Nog niet ingeladen."}</p>
+      <p class="uitleg" style="margin-top:6px">Uit het preventieprogramma: Rondgangen → Rondgang-app → link naar je gsm mailen.</p></div>
+    <div class="kaart"><label class="lbl">Conditiestaat (projectopvolging)</label><p>${heeftC() ? `${cData().g.length} gebouwen en ${cData().d.length} bouwdelen ingeladen.${cData().m?` Metingen gaan naar ${esc(cData().m)}.`:""}` : "Nog niet ingeladen."}</p>
+      <p class="uitleg" style="margin-top:6px">Uit projectopvolging: Conditie → Link voor de app.</p></div>
     ${inlaadKaart()}
-    <div class="kaart uitleg">Alles blijft op deze gsm tot je een rondgang verzendt. De foto's worden verkleind zodat de mail niet te zwaar wordt. Verwijder verzonden rondgangen gerust; ze staan dan in het programma.</div>`;
+    <div class="kaart uitleg">Zijn er gebouwen of bouwdelen bijgekomen, plak dan de nieuwe link. Alles blijft op deze gsm tot je het verzendt. De foto's worden verkleind zodat de mail niet te zwaar wordt. Verwijder verzonden rondgangen en metingen gerust; ze staan dan in het programma.</div>`;
   $("#i-naam").onchange = e=>ls("rg-naam", e.target.value.trim());
   inlaadKoppel();
   onder("");
@@ -300,9 +331,231 @@ async function verzenden(r){
 function bevestig(vraag, knop, ok){ const d = document.createElement("div"); d.className = "bevestig"; d.innerHTML = `<div class="kaart"><p style="font-weight:600">${esc(vraag)}</p><button class="knop hoofd" style="background:var(--rood)">${esc(knop)}</button><button class="knop licht">Annuleren</button></div>`;
   document.body.appendChild(d); const [j, n] = d.querySelectorAll("button"); j.onclick = ()=>{ d.remove(); ok(); }; n.onclick = ()=>d.remove(); d.onclick = e=>{ if(e.target===d) d.remove(); }; }
 
-$("#terug").onclick = ()=>{ if(staat.scherm==="punt"){ concept = null; staat = {scherm:"rg", rid:staat.rid}; } else staat = {scherm:"lijst"}; toon(); };
+/* ======================= Startscherm: kiezen wat je opmaakt ======================= */
+const heeftR = () => gebouwen().length>0;
+const heeftC = () => !!(cData()?.g?.length);
+const beide = () => heeftR() && heeftC();
+function schermStart(){
+  kop("Gebouwen", "Houthalen-Helchteren", false);
+  const rBezig = lijst.filter(r=>!r.verzonden).length, cBezig = metingen.filter(m=>!m.verzonden).length;
+  const tegel = (naar, ic, titel, sub, n) => `<button class="tegel" data-naar="${naar}"><span class="tegel-ic">${ic}</span><span class="tegel-tx"><b>${titel}</b><span>${sub}</span></span>${n?`<span class="pil bezig">${n} bezig</span>`:""}</button>`;
+  $("#scherm").innerHTML = heeftR() || heeftC()
+    ? `<p class="uitleg" style="margin:2px 2px 0">Wat ga je opmaken?</p>${heeftR() ? tegel("lijst", "&#128694;", "Rondgang", "Preventie: vaststellingen en checklist", rBezig) : ""}${heeftC() ? tegel("cLijst", "&#127970;", "Conditiestaat", "Bouwdelen en gebreken (NEN 2767)", cBezig) : ""}`
+    : `<div class="kaart leeg"><p><b>Welkom</b></p><p class="uitleg" style="margin-top:6px">Open de link uit het preventieprogramma (rondgang) of uit projectopvolging (conditiestaat), of plak ze hieronder.</p></div>${inlaadKaart()}`;
+  document.querySelectorAll(".tegel").forEach(b=>b.onclick = ()=>{ staat = {scherm:b.dataset.naar}; toon(); });
+  inlaadKoppel(); onder("");
+}
+
+/* ======================= Conditiestaat (projectopvolging 9.10: bouwdelen in twee niveaus, gebreken volgens NEN 2767) =======================
+   De link uit projectopvolging (#c=…) brengt de gebouwen, bouwdelen, gebouwtypes, de NEN-tabel, de namen en het ontvangstadres mee.
+   Een meting blijft op de gsm (IndexedDB "cm") tot ze verzonden wordt: één mail met een gegevensbestand (type "conditie-meting") en de foto's. */
+let metingen = [], cConcept = null, cFotoDoel = null, cScroll = 0; const cOpen = new Set();
+const NEN_STD = {"3-3":[3,4,5,6,6], "3-2":[2,3,4,5,6], "3-1":[1,2,3,4,5], "2-3":[2,3,4,5,6], "2-2":[1,2,3,4,5], "2-1":[1,1,2,3,4], "1-3":[1,2,3,4,5], "1-2":[1,1,2,3,4], "1-1":[1,1,1,2,3]};
+const ERNST = ["", "gering", "serieus", "ernstig"], INTENS = ["", "begin", "gevorderd", "eind"], OMVANG = ["", "< 2 %", "2–10 %", "10–30 %", "30–70 %", "≥ 70 %"];
+const ASPECTEN = [["veiligheid","Veiligheid","&#9888;"],["gezondheid","Gezondheid","&#10010;"],["gebruik","Gebruik","&#9881;"],["wetgeving","Wetgeving","&#9878;"],["instandhouding","Instandhouding","&#127970;"]];
+const URGENTIE = [["nu","Nu",0],["1j","1 jaar",1],["5j","1–5 jaar",3],["later","Later",null]];
+const GEBREK_STD = ["Lekkage","Scheurvorming","Corrosie / roest","Rot / houtaantasting","Vocht / schimmel","Afbladderende verf","Beschadiging","Loszittend / instabiel","Slijtage","Vervuiling / verstopping","Ontbrekende onderdelen","Werkt niet / defect","Verouderd / einde levensduur","Niet conform regelgeving"];
+const C_LABEL = ["", "uitstekend", "goed", "redelijk", "matig", "slecht", "zeer slecht"], C_KLEUR = ["#9AA4AE", "#2E7D32", "#7CB342", "#F9A825", "#FB8C00", "#E53935", "#8E1B1B"];
+function linkJson(b64){ const s = atob(b64.replace(/-/g,"+").replace(/_/g,"/")); return JSON.parse(new TextDecoder().decode(new Uint8Array([...s].map(c=>c.charCodeAt(0))))); }
+function laadConditieUit(tekst, stil){
+  const m = String(tekst||"").match(/#c=([A-Za-z0-9_\-]+)/); if(!m){ if(!stil) melding("In deze tekst staan geen gegevens voor de conditiestaat. Kopieer de volledige link uit de mail.", 4000); return false; }
+  try{ const j = linkJson(m[1]); if(!Array.isArray(j.g) || !Array.isArray(j.d)) throw new Error("onvolledig");
+    const nieuw = JSON.stringify(j)!==JSON.stringify(ls("cm-data")||null); ls("cm-data", j);
+    if(nieuw || !stil) melding(`${j.g.length} gebouwen en ${j.d.length} bouwdelen ingeladen.`); return true;
+  }catch(e){ melding("De gegevens in deze link konden niet gelezen worden."); return false; } }
+const cData = () => ls("cm-data");
+const cGeb = id => (cData()?.g||[]).find(g=>g[0]===id);
+const cDeel = id => (cData()?.d||[]).find(d=>d[0]===id);
+const cGroepVan = id => cDeel(id)?.[2] || "overig";
+const cGroepNaam = id => ((cData()?.gr||[]).find(g=>g[0]===id)||[])[1] || "Overige";
+function cDelenVoorGebouw(gid){ const d = cData(), g = cGeb(gid), t = g && g[2] ? (d.t||[]).find(x=>x[0]===g[2]) : null; return (d.d||[]).filter(x=>!t || (t[2]||[]).includes(x[0])).map(x=>x[0]); }
+function cNen(g){ const t = cData()?.nen || NEN_STD, r = t[`${g.ernst}-${g.intensiteit}`] || NEN_STD[`${g.ernst}-${g.intensiteit}`]; return r ? r[(Number(g.omvang)||1)-1] : null; }
+function cScore(x){ if(!x || x.nvt) return 0; const l = (x.gebreken||[]).map(cNen).filter(Boolean); return l.length ? Math.max(...l) : (x.score||0); }
+const cKlaar = x => !!x && !!(x.nvt || (x.gebreken||[]).length || x.score);
+function cTel(m){ const ids = m.deelIds||[], d = m.delen||{}; return {n:ids.length, b:ids.filter(id=>cKlaar(d[id])).length, g:ids.reduce((s,id)=>s+(d[id]?.gebreken||[]).length, 0), f:ids.reduce((s,id)=>s+(d[id]?.fotos||[]).length, 0)}; }
+const cBol = s => s ? `<span class="c-bol" style="background:${C_KLEUR[s]}" title="${C_LABEL[s]}">${s}</span>` : `<span class="c-bol leeg"></span>`;
+const cUrgJaar = u => { const x = URGENTIE.find(y=>y[0]===u); return x && x[2]!==null ? new Date().getFullYear() + x[2] : ""; };
+const cHuidig = () => metingen.find(m=>m.id===staat.mid);
+
+/* --- opslag op de gsm --- */
+function cStore(mode){ return db && db.objectStoreNames.contains("cm") ? db.transaction("cm", mode||"readonly").objectStore("cm") : null; }
+function cDbAlles(){ return new Promise(res=>{ try{ const st = cStore(); if(!st) return res([]); const q = st.getAll(); q.onsuccess = ()=>res(q.result||[]); q.onerror = ()=>res([]); }catch(e){ res([]); } }); }
+function cDbZet(m){ return new Promise(res=>{ if(!db) return res(); try{ const t = db.transaction("cm","readwrite"); t.objectStore("cm").put(m); t.oncomplete = ()=>res(); t.onerror = ()=>{ melding("Bewaren op de gsm lukte niet (geheugen vol?)."); res(); }; }catch(e){ res(); } }); }
+function cDbWeg(id){ return new Promise(res=>{ if(!db) return res(); try{ const t = db.transaction("cm","readwrite"); t.objectStore("cm").delete(id); t.oncomplete = ()=>res(); t.onerror = ()=>res(); }catch(e){ res(); } }); }
+async function cBewaar(m){ m.gewijzigd = new Date().toISOString(); const i = metingen.findIndex(x=>x.id===m.id); if(i<0) metingen.push(m); else metingen[i] = m; await cDbZet(m); }
+
+/* --- lijst van metingen --- */
+function schermCLijst(){
+  kop("Conditiestaat", "Projectopvolging Team Gebouwen", beide());
+  const l = metingen.slice().sort((a,b)=>(b.gewijzigd||"").localeCompare(a.gewijzigd||""));
+  $("#scherm").innerHTML = (l.length ? l.map(m=>{ const t = cTel(m); return `<button class="rg-it" data-id="${m.id}"><div style="flex:1; min-width:0"><b>${esc(m.gebouw||"Gebouw nog te kiezen")}</b>
+      <span>${dNL(m.datum)} · ${t.b}/${t.n} bouwdelen · ${t.g} gebrek${t.g===1?"":"en"} · ${t.f} foto${t.f===1?"":"'s"}</span></div><span class="pil ${m.verzonden?"weg":"bezig"}">${m.verzonden?"verzonden":"bezig"}</span></button>`; }).join("")
+    : `<div class="kaart leeg"><p><b>Nog geen meting op deze gsm.</b></p><p class="uitleg" style="margin-top:6px">Start een meting, kies het gebouw en loop de bouwdelen af: geen gebreken, n.v.t. of een gebrek met foto. Op het einde verstuur je alles in één mail naar projectopvolging.</p></div>`)
+    + (heeftC() ? "" : inlaadKaart());
+  document.querySelectorAll(".rg-it").forEach(b=>b.onclick = ()=>{ cOpen.clear(); staat = {scherm:"cMeting", mid:b.dataset.id}; toon(); });
+  inlaadKoppel();
+  onder(heeftC() ? `<button class="knop hoofd" id="cNieuw">+ Nieuwe meting</button>` : "");
+  if($("#cNieuw")) $("#cNieuw").onclick = async ()=>{ const m = {id:nieuwId(), gebouwId:"", gebouw:"", datum:vandaag(), door:ls("rg-naam")||"", opmerking:"", deelIds:[], delen:{}, verzonden:""};
+    await cBewaar(m); cOpen.clear(); staat = {scherm:"cMeting", mid:m.id}; toon(); };
+}
+
+/* --- de meting: per hoofdgroep de bouwdelen; tikken vernieuwt enkel die groep, het scherm verspringt niet --- */
+function cGroepen(m){ const o = (cData()?.gr||[]).map(g=>g[0]), l = [...new Set((m.deelIds||[]).map(cGroepVan))]; return l.sort((a,b)=>(o.indexOf(a)<0?999:o.indexOf(a)) - (o.indexOf(b)<0?999:o.indexOf(b))); }
+function cDeelHtml(m, id){
+  const x = (m.delen||{})[id] || {}, gb = x.gebreken||[], f = x.fotos||[], st = x.nvt ? "nvt" : gb.length ? "gb" : x.score ? "ok" : "";
+  return `<div class="c-deel ${st}" data-d="${esc(id)}"><div class="c-dkop">${st==="nvt" ? `<span class="c-bol nvt">&ndash;</span>` : cBol(cScore(x))}<span class="c-dnaam">${esc(cDeel(id)?.[1]||x.naam||id)}</span></div>
+    <div class="c-k"><button data-act="geen" class="${st==="ok"?"aan ok":""}" ${gb.length?"disabled":""}>&#10004; geen gebreken</button><button data-act="nvt" class="${st==="nvt"?"aan nvt":""}" ${gb.length?"disabled":""}>n.v.t.</button><button data-act="gebrek" class="gb">+ gebrek</button><button data-act="foto" class="foto" aria-label="Foto nemen">&#128247;</button><button data-act="bib" class="foto" aria-label="Foto uit je bibliotheek">&#128444;</button></div>
+    ${gb.map(g=>`<button class="c-gb" data-act="gb" data-gb="${esc(g.id)}">${cBol(cNen(g))}<span><b>${esc(g.gebrek)}</b><small>${ERNST[g.ernst]} · ${INTENS[g.intensiteit]} · ${OMVANG[g.omvang]} · ${(URGENTIE.find(u=>u[0]===g.urgentie)||[])[1]||""}${Number(g.kosten)?` · € ${Number(g.kosten).toLocaleString("nl-BE")}`:""} ${(g.aspecten||[]).map(a=>(ASPECTEN.find(z=>z[0]===a)||[])[2]).join("")}</small></span></button>`).join("")}
+    ${f.length ? `<div class="cl-fotos">${f.map((b,j)=>`<div><img src="${fotoUrl(b)}" alt=""><button data-act="fw" data-j="${j}" aria-label="Foto verwijderen">&times;</button></div>`).join("")}</div>` : ""}</div>`;
+}
+function cGroepHtml(m, gid){
+  const ids = (m.deelIds||[]).filter(id=>cGroepVan(id)===gid), sc = ids.map(id=>cScore((m.delen||{})[id])).filter(Boolean), klaar = ids.filter(id=>cKlaar((m.delen||{})[id])).length;
+  return `<details class="kaart c-groep" data-g="${esc(gid)}" ${cOpen.has(gid)?"open":""}><summary>${cBol(sc.length?Math.max(...sc):0)}<b>${esc(cGroepNaam(gid))}</b><span class="c-gtel ${klaar===ids.length?"ok":""}">${klaar===ids.length?"&#10004; ":""}${klaar}/${ids.length}</span></summary>
+    ${ids.map(id=>cDeelHtml(m, id)).join("")}
+    ${klaar<ids.length ? `<button class="knop licht c-rest" data-act="rest">Rest van ${esc(cGroepNaam(gid).toLowerCase())}: geen gebreken</button>` : ""}</details>`;
+}
+function cTellers(m){ const t = cTel(m); if($("#c-tel")){ $("#c-tel").textContent = `${t.b}/${t.n} bouwdelen bekeken`; $("#c-tel2").textContent = `${t.g} gebrek${t.g===1?"":"en"} · ${t.f} foto${t.f===1?"":"'s"}`; $("#c-balk").style.width = (t.n ? Math.round(t.b/t.n*100) : 0)+"%"; }
+  if($("#cVerzend")) $("#cVerzend").disabled = !(t.b || (m.opmerking||"").trim()); }
+function cGroepVernieuw(m, gid){ const el = document.querySelector(`.c-groep[data-g="${CSS.escape(gid)}"]`); if(el){ el.outerHTML = cGroepHtml(m, gid); cToggleKoppel(); } cTellers(m); }
+function cToggleKoppel(){ document.querySelectorAll(".c-groep").forEach(d=>{ if(d._k) return; d._k = 1; d.addEventListener("toggle", ()=>{ if(d.open) cOpen.add(d.dataset.g); else cOpen.delete(d.dataset.g); }); }); }
+function schermCMeting(){
+  const m = cHuidig(); if(!m){ staat = {scherm:"cLijst"}; return toon(); }
+  const d = cData(); if(!d){ staat = {scherm:"cLijst"}; return toon(); }
+  m.delen = m.delen||{}; const t = cTel(m);
+  kop(m.gebouw || "Nieuwe meting", dNL(m.datum)+(m.verzonden?" · verzonden":""), true);
+  $("#scherm").innerHTML = `<div class="kaart velden">
+      <div><label class="lbl" for="c-geb">Gebouw</label><select id="c-geb" class="sel"><option value="">— kies het gebouw —</option>${d.g.map(g=>`<option value="${esc(g[0])}" ${m.gebouwId===g[0]?"selected":""}>${esc(g[1])}</option>`).join("")}</select></div>
+      <div class="rij"><div style="flex:1"><label class="lbl" for="c-dat">Datum</label><input type="date" id="c-dat" value="${esc(m.datum)}"></div>
+        <div style="flex:1.3"><label class="lbl" for="c-door">Wie meet?</label><input type="text" id="c-door" list="dl-cn" value="${esc(m.door)}" placeholder="je naam" autocomplete="off"><datalist id="dl-cn">${(d.n||[]).map(n=>`<option value="${esc(n)}">`).join("")}</datalist></div></div></div>
+    ${!m.gebouwId ? `<div class="kaart leeg uitleg">Kies eerst het gebouw. De bouwdelen volgen het gebouwtype uit projectopvolging.</div>` : `
+    <div class="kaart"><div class="c-voortgang"><b id="c-tel">${t.b}/${t.n} bouwdelen bekeken</b><span id="c-tel2">${t.g} gebrek${t.g===1?"":"en"} · ${t.f} foto${t.f===1?"":"'s"}</span></div><div class="c-balk"><i id="c-balk" style="width:${t.n?Math.round(t.b/t.n*100):0}%"></i></div></div>
+    <div id="c-groepen">${cGroepen(m).map(g=>cGroepHtml(m, g)).join("")}</div>
+    <div class="kaart"><label class="lbl" for="c-opm">Algemene opmerking</label><textarea id="c-opm" placeholder="bv. algemene indruk van het gebouw">${esc(m.opmerking)}</textarea></div>
+    <button class="mini weg" id="cWeg" style="align-self:center">deze meting van de gsm verwijderen</button>`}`;
+  $("#c-geb").onchange = async e=>{ const g = cGeb(e.target.value); m.gebouwId = g ? g[0] : ""; m.gebouw = g ? g[1] : "";
+    m.deelIds = m.gebouwId ? [...new Set([...cDelenVoorGebouw(m.gebouwId), ...Object.keys(m.delen).filter(id=>cKlaar(m.delen[id]) || (m.delen[id].fotos||[]).length)])] : [];
+    m.verzonden = ""; await cBewaar(m); toon(); };
+  $("#c-dat").onchange = async e=>{ m.datum = e.target.value || vandaag(); m.verzonden = ""; await cBewaar(m); kop(m.gebouw || "Nieuwe meting", dNL(m.datum), true); };
+  $("#c-door").onchange = async e=>{ m.door = e.target.value.trim(); if(m.door) ls("rg-naam", ls("rg-naam") || m.door); await cBewaar(m); };
+  if($("#c-opm")) $("#c-opm").onchange = async e=>{ m.opmerking = e.target.value; m.verzonden = ""; await cBewaar(m); cTellers(m); };
+  cToggleKoppel();
+  const gr = $("#c-groepen");
+  if(gr) gr.onclick = async e=>{
+    const k = e.target.closest("button[data-act]"); if(!k) return; const grp = k.closest(".c-groep"), gid = grp?.dataset.g, deel = k.closest(".c-deel"), did = deel?.dataset.d, act = k.dataset.act;
+    const x = did ? (m.delen[did] = m.delen[did] || {}) : null;
+    if(act==="foto" || act==="bib"){ cFotoDoel = {mid:m.id, did}; $(act==="foto" ? "#camera" : "#bib").click(); return; }   // meteen, zodat de iPhone de camera toelaat
+    if(act==="gebrek" || act==="gb"){ cScroll = window.scrollY; cConcept = null; staat = {scherm:"cGebrek", mid:m.id, did, gbid:act==="gb" ? k.dataset.gb : null}; toon(); return; }
+    if(act==="geen"){ if(x.score===1) delete x.score; else { x.score = 1; delete x.nvt; } }
+    else if(act==="nvt"){ if(x.nvt) delete x.nvt; else { x.nvt = true; delete x.score; } }
+    else if(act==="fw"){ (x.fotos||[]).splice(Number(k.dataset.j), 1); }
+    else if(act==="rest"){ m.deelIds.filter(id=>cGroepVan(id)===gid && !cKlaar(m.delen[id])).forEach(id=>{ m.delen[id] = {...(m.delen[id]||{}), score:1}; }); }
+    else return;
+    m.verzonden = ""; cGroepVernieuw(m, gid); await cBewaar(m);
+  };
+  if($("#cWeg")) $("#cWeg").onclick = ()=>bevestig(m.verzonden ? "Deze meting is verzonden. Van de gsm verwijderen?" : "Deze meting is nog niet verzonden. Toch verwijderen? De foto's gaan verloren.", "Verwijderen", async ()=>{ metingen = metingen.filter(x=>x.id!==m.id); await cDbWeg(m.id); staat = {scherm:"cLijst"}; toon(); });
+  onder(m.gebouwId ? `<button class="knop hoofd" id="cVerzend" ${t.b || (m.opmerking||"").trim() ? "" : "disabled"}>&#9993; Meting verzenden</button>` : "");
+  if($("#cVerzend")) $("#cVerzend").onclick = ()=>{ if($("#c-opm")) m.opmerking = $("#c-opm").value; cVerzenden(m); };
+}
+async function cFotosErbij(files){
+  const doel = cFotoDoel; cFotoDoel = null; const m = metingen.find(x=>x.id===doel.mid), l = [...(files||[])]; if(!m || !l.length) return;
+  const x = m.delen[doel.did] = m.delen[doel.did] || {}; x.fotos = x.fotos||[];
+  for(const f of l){ const b = await verklein(f); if(b) x.fotos.push(b); else melding("Een foto kon niet gelezen worden."); }
+  m.verzonden = ""; await cBewaar(m);
+  if(staat.scherm==="cGebrek") toon(); else if(staat.scherm==="cMeting") cGroepVernieuw(m, cGroepVan(doel.did));
+}
+
+/* --- een gebrek: ernst, intensiteit en omvang geven de score volgens de NEN-tabel uit projectopvolging --- */
+function cSeg(id, opts, w){ return `<div class="seg c-seg" id="${id}">${opts.map(([v,t])=>`<button data-v="${v}" class="${String(w)===String(v)?"aan":""}">${t}</button>`).join("")}</div>`; }
+function schermCGebrek(){
+  const m = cHuidig(); if(!m){ staat = {scherm:"cLijst"}; return toon(); }
+  const did = staat.did, x = m.delen[did] = m.delen[did] || {};
+  if(!cConcept){ const g = staat.gbid ? (x.gebreken||[]).find(y=>y.id===staat.gbid) : null;
+    cConcept = g ? JSON.parse(JSON.stringify(g)) : {id:nieuwId(), gebrek:"", ernst:2, intensiteit:2, omvang:2, aspecten:[], urgentie:"5j", maatregel:"", kosten:"", jaar:cUrgJaar("5j")}; }
+  const c = cConcept, nieuw = !staat.gbid, f = x.fotos||[];
+  kop(nieuw ? "Nieuw gebrek" : "Gebrek aanpassen", cDeel(did)?.[1]||"", true);
+  const score = () => { const s = cNen(c); return `${cBol(s)}<span><b>Score ${s||"?"}</b> ${C_LABEL[s]||""}</span>`; };
+  $("#scherm").innerHTML = `<div class="kaart velden">
+      <div><label class="lbl" for="g-n">Gebrek</label><input type="text" id="g-n" list="dl-gb" value="${esc(c.gebrek)}" placeholder="bv. Lekkage" autocomplete="off"><datalist id="dl-gb">${GEBREK_STD.map(t=>`<option value="${esc(t)}">`).join("")}</datalist></div>
+      <div><label class="lbl">Ernst</label>${cSeg("g-e", [[1,"gering"],[2,"serieus"],[3,"ernstig"]], c.ernst)}</div>
+      <div><label class="lbl">Intensiteit</label>${cSeg("g-i", [[1,"begin"],[2,"gevorderd"],[3,"eind"]], c.intensiteit)}</div>
+      <div><label class="lbl">Omvang (deel van het bouwdeel)</label>${cSeg("g-o", [[1,"&lt;2%"],[2,"2–10"],[3,"10–30"],[4,"30–70"],[5,"&ge;70%"]], c.omvang)}</div>
+      <div class="c-score" id="g-score">${score()}</div></div>
+    <div class="kaart velden">
+      <div><label class="lbl">Invloed op</label><div class="chips" id="g-a">${ASPECTEN.map(([k,t,i])=>`<button data-v="${k}" class="${(c.aspecten||[]).includes(k)?"aan":""}">${i} ${t}</button>`).join("")}</div></div>
+      <div><label class="lbl">Urgentie</label>${cSeg("g-u", URGENTIE.map(u=>[u[0],u[1]]), c.urgentie)}</div>
+      <div class="rij"><div style="flex:1.4"><label class="lbl" for="g-k">Raming (€)</label><input type="text" id="g-k" inputmode="numeric" value="${esc(c.kosten||"")}" placeholder="niet verplicht"></div>
+        <div style="flex:1"><label class="lbl" for="g-j">Jaar</label><input type="text" id="g-j" inputmode="numeric" value="${esc(c.jaar||"")}"></div></div>
+      <div><label class="lbl" for="g-m">Maatregel</label><textarea id="g-m" placeholder="wat moet er gebeuren?">${esc(c.maatregel||"")}</textarea></div></div>
+    <div class="kaart velden"><label class="lbl">Foto's van dit bouwdeel</label>
+      ${f.length ? `<div class="cl-fotos">${f.map(b=>`<div><img src="${fotoUrl(b)}" alt=""></div>`).join("")}</div>` : `<p class="uitleg">Nog geen foto.</p>`}
+      <div class="fotoknop"><button class="knop blauw" id="g-neem">&#128247; Foto nemen</button><button class="knop licht" id="g-kies">Uit foto's</button></div></div>
+    ${nieuw ? "" : `<button class="mini weg" id="g-weg" style="align-self:center">dit gebrek verwijderen</button>`}`;
+  const lees = ()=>{ c.gebrek = $("#g-n").value.trim(); c.kosten = $("#g-k").value.replace(/[^\d]/g,""); c.jaar = $("#g-j").value.replace(/[^\d]/g,""); c.maatregel = $("#g-m").value; };
+  const seg = (id, veld, getal, na) => { $(id).onclick = e=>{ const b = e.target.closest("button"); if(!b) return; c[veld] = getal ? Number(b.dataset.v) : b.dataset.v; $(id).querySelectorAll("button").forEach(z=>z.classList.toggle("aan", z===b)); $("#g-score").innerHTML = score(); if(na) na(); }; };
+  seg("#g-e", "ernst", true); seg("#g-i", "intensiteit", true); seg("#g-o", "omvang", true);
+  seg("#g-u", "urgentie", false, ()=>{ if(!c.jaarZelf){ c.jaar = cUrgJaar(c.urgentie); $("#g-j").value = c.jaar; } });
+  $("#g-j").oninput = ()=>{ c.jaarZelf = true; };
+  $("#g-a").onclick = e=>{ const b = e.target.closest("button"); if(!b) return; const k = b.dataset.v; c.aspecten = (c.aspecten||[]).includes(k) ? c.aspecten.filter(a=>a!==k) : [...(c.aspecten||[]), k]; b.classList.toggle("aan"); };
+  $("#g-neem").onclick = ()=>{ lees(); cFotoDoel = {mid:m.id, did}; $("#camera").click(); };
+  $("#g-kies").onclick = ()=>{ lees(); cFotoDoel = {mid:m.id, did}; $("#bib").click(); };
+  const terug = () => { cConcept = null; staat = {scherm:"cMeting", mid:m.id}; cOpen.add(cGroepVan(did)); toon(); window.scrollTo(0, cScroll); };
+  if($("#g-weg")) $("#g-weg").onclick = ()=>bevestig("Dit gebrek verwijderen?", "Verwijderen", async ()=>{ x.gebreken = (x.gebreken||[]).filter(y=>y.id!==c.id); if(!x.gebreken.length) delete x.gebreken; m.verzonden = ""; await cBewaar(m); terug(); });
+  onder(`<button class="knop licht" id="g-annul" style="flex:1">Annuleren</button><button class="knop hoofd" id="g-bew" style="flex:2">Bewaren</button>`);
+  $("#g-annul").onclick = terug;
+  $("#g-bew").onclick = async ()=>{ lees(); if(!c.gebrek){ melding("Schrijf kort wat het gebrek is."); $("#g-n").focus(); return; }
+    const n = {...c}; delete n.jaarZelf; n.kosten = Number(n.kosten)||""; n.jaar = Number(n.jaar)||"";
+    x.gebreken = x.gebreken||[]; const i = x.gebreken.findIndex(y=>y.id===n.id); if(i<0) x.gebreken.push(n); else x.gebreken[i] = n;
+    delete x.score; delete x.nvt; m.verzonden = ""; await cBewaar(m); terug(); melding("Bewaard op de gsm."); };
+}
+
+/* --- verzenden: één mail met een gegevensbestand en de foto's --- */
+function cVerzenden(m){
+  if(!m.gebouwId){ melding("Kies eerst het gebouw."); return; }
+  if(!(m.door||"").trim()){ melding("Vul in wie meet."); $("#c-door")?.focus(); return; }
+  const adres = cData()?.m || "", d = document.createElement("div"); d.className = "bevestig";
+  d.innerHTML = `<div class="kaart"><p style="font-weight:700">Meting verzenden</p>
+    <p class="uitleg">Kies in het volgende scherm je mail-app en stuur de mail naar${adres ? ":" : " de verantwoordelijke in projectopvolging."}</p>
+    ${adres ? `<div class="c-adres"><b>${esc(adres)}</b><button class="knop licht" id="cpKopie">Kopiëren</button></div>` : ""}
+    <button class="knop hoofd" id="cpGa">&#9993; Verzenden</button><button class="knop licht" id="cpNee">Annuleren</button></div>`;
+  document.body.appendChild(d);
+  if(adres) d.querySelector("#cpKopie").onclick = async ()=>{ try{ await navigator.clipboard.writeText(adres); melding("Adres gekopieerd."); }catch(e){ melding("Kopiëren lukte niet."); } };
+  d.querySelector("#cpNee").onclick = ()=>d.remove(); d.onclick = e=>{ if(e.target===d) d.remove(); };
+  d.querySelector("#cpGa").onclick = ()=>{ d.remove(); cDelen(m, adres); };
+}
+async function cDelen(m, adres){
+  const basis = `conditie-${slug(m.gebouw)}-${m.datum}`, files = [], delen = {}, t = cTel(m), regels = [];
+  (m.deelIds||[]).forEach(id=>{ const x = m.delen[id]; if(!x) return; const naam = cDeel(id)?.[1] || x.naam || id;
+    const namen = (x.fotos||[]).map((f,j)=>`${basis}-${slug(id)}-${j+1}.jpg`); namen.forEach((n,j)=>files.push(new File([x.fotos[j]], n, {type:"image/jpeg"})));
+    const uit = {naam};
+    if(x.nvt) uit.nvt = true;
+    else if((x.gebreken||[]).length){ uit.gebreken = x.gebreken.map(g=>{ const o = {id:g.id, gebrek:g.gebrek, ernst:g.ernst, intensiteit:g.intensiteit, omvang:g.omvang, aspecten:g.aspecten||[], urgentie:g.urgentie};
+        if((g.maatregel||"").trim()) o.maatregel = g.maatregel.trim(); if(Number(g.kosten)) o.kosten = Number(g.kosten); if(Number(g.jaar)) o.jaar = Number(g.jaar);
+        regels.push(`– ${naam}: ${g.gebrek} (score ${cNen(g)}, ${(URGENTIE.find(u=>u[0]===g.urgentie)||[])[1]||""})`); return o; }); }
+    else if(x.score) uit.score = x.score;
+    if(namen.length) uit.fotos = namen;
+    if(Object.keys(uit).length>1) delen[id] = uit; });
+  const data = {type:"conditie-meting", versie:1, gemaakt:new Date().toISOString(), door:m.door, gebouw:{id:m.gebouwId, naam:m.gebouw}, datum:m.datum, opmerking:(m.opmerking||"").trim(), deelIds:m.deelIds, delen};
+  const json = new File([JSON.stringify(data, null, 1)], basis+".json", {type:"application/json"});
+  const tekst = `${adres?`Aan: ${adres}\n\n`:""}Conditiemeting ${m.gebouw} – ${dNL(m.datum)} door ${m.door}\n${t.b}/${t.n} bouwdelen bekeken, ${t.g} gebrek${t.g===1?"":"en"}, ${files.length} foto${files.length===1?"":"'s"}.${regels.length?"\n\n"+regels.join("\n"):""}${data.opmerking?`\n\nOpmerking: ${data.opmerking}`:""}\n\nLees deze mail in in projectopvolging: Conditie → Inlezen uit de app.`;
+  const alles = [json, ...files];
+  try{
+    if(navigator.canShare && navigator.canShare({files:alles})){ await navigator.share({files:alles, title:`Conditiemeting ${m.gebouw} ${dNL(m.datum)}`, text:tekst}); m.verzonden = vandaag(); await cBewaar(m); toon(); melding("Verzonden.", 3000); return; }
+  }catch(e){ if(e && e.name==="AbortError") return; }
+  const metFotos = {...data, fotosData:{}}; for(const f of files) metFotos.fotosData[f.name] = await new Promise(res=>{ const fr = new FileReader(); fr.onload = ()=>res(fr.result); fr.readAsDataURL(f); });
+  const blob = new Blob([JSON.stringify(metFotos)], {type:"application/json"}), a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = basis+".json"; document.body.appendChild(a); a.click(); a.remove();
+  m.verzonden = vandaag(); await cBewaar(m); toon(); melding(`Delen lukt niet in deze browser. Het bestand is gedownload: stuur het als bijlage${adres?" naar "+adres:""}.`, 6000);
+}
+
+$("#terug").onclick = ()=>{ const s = staat.scherm;
+  if(s==="punt"){ concept = null; staat = {scherm:"rg", rid:staat.rid}; }
+  else if(s==="cGebrek"){ cConcept = null; staat = {scherm:"cMeting", mid:staat.mid}; }
+  else if(s==="cMeting") staat = {scherm:"cLijst"};
+  else if(s==="rg") staat = {scherm:"lijst"};
+  else staat = {scherm:"start"};
+  toon(); };
 $("#instelKnop").onclick = ()=>{ staat = {scherm:"instel"}; toon(); };
-(async()=>{ leesLink(); db = await dbOpen(); lijst = await dbAlles(); toon(); })();
+window.addEventListener("hashchange", ()=>{ leesLink(); staat = {scherm:"start"}; toon(); });
+(async()=>{ leesLink(); db = await dbOpen(); lijst = await dbAlles(); metingen = await cDbAlles(); staat = {scherm:"start"}; toon(); })();
 </script>
 </body>
 </html>
