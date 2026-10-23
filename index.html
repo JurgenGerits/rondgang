@@ -92,6 +92,13 @@ select.sel{ width:100%; font:16px inherit; font-family:inherit; padding:11px 12p
 .c-dkop{ display:flex; align-items:center; gap:10px; margin-bottom:8px; } .c-dnaam{ font-weight:600; font-size:15px; }
 .c-k{ display:flex; gap:6px; } .c-k button{ flex:1; border:1px solid var(--lijn); background:#fff; border-radius:10px; padding:10px 4px; font:600 13px inherit; font-family:inherit; color:var(--zacht); }
 .c-k button.gb{ color:var(--oranje); border-color:#F3C9A5; } .c-k button.foto{ flex:0 0 40px; font-size:16px; padding:10px 0; } .c-k button:disabled{ opacity:.35; }
+.c-k2{ display:flex; gap:6px; margin-top:6px; flex-wrap:wrap; } .c-k2 button{ border:1px solid var(--lijn); background:#fff; border-radius:8px; padding:6px 10px; font:600 12px inherit; font-family:inherit; color:var(--zacht); }
+.c-k2 button.aan{ background:#7E57C2; border-color:#7E57C2; color:#fff; } .c-k2 button:disabled{ opacity:.35; } .c-deel.nb{ background:#F5F1FB; } .c-bol.nb{ background:#7E57C2; color:#fff; display:inline-grid; place-items:center; font-size:12px; font-weight:700; }
+.c-inv{ display:block; border:0; background:none; padding:0 0 6px; font:13px inherit; font-family:inherit; color:#2C5F94; text-align:left; } .c-inv.gewijzigd{ font-weight:700; }
+.c-vorig{ font-size:12.5px; color:var(--zacht); margin:0 0 8px; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+.c-vgb{ display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; border:1px dashed #E3C9AE; border-radius:10px; padding:6px 8px; margin-top:6px; font-size:13px; } .c-vgb > span:first-child{ display:flex; align-items:center; gap:6px; }
+.c-vgb-k{ display:flex; gap:4px; } .c-vgb-k button{ border:1px solid var(--lijn); background:#fff; border-radius:8px; padding:5px 8px; font:600 12px inherit; font-family:inherit; color:var(--zacht); } .c-vgb-k button.h{ color:var(--groen); border-color:#BFE3C4; }
+.c-herst{ font-size:12.5px; color:var(--groen); margin-top:6px; }
 .c-k button.aan.ok{ background:var(--groen); border-color:var(--groen); color:#fff; } .c-k button.aan.nvt{ background:#8A94A0; border-color:#8A94A0; color:#fff; }
 .c-gb{ display:flex; gap:10px; align-items:center; width:100%; text-align:left; background:#fff; border:1px solid #F1D9C4; border-radius:10px; padding:8px 10px; margin-top:8px; font:inherit; color:inherit; }
 .c-gb b{ display:block; font-size:14px; } .c-gb small{ display:block; color:var(--zacht); font-size:12px; }
@@ -100,6 +107,12 @@ select.sel{ width:100%; font:16px inherit; font-family:inherit; padding:11px 12p
 .c-score{ display:flex; align-items:center; gap:10px; background:var(--veld); border-radius:10px; padding:10px 12px; } .c-score .c-bol{ width:34px; height:34px; font-size:16px; }
 .chips{ display:flex; flex-wrap:wrap; gap:6px; } .chips button{ border:1px solid var(--lijn); background:#fff; border-radius:20px; padding:8px 12px; font:600 13px inherit; font-family:inherit; color:var(--zacht); }
 .chips button.aan{ background:var(--blauw); border-color:var(--blauw); color:#fff; }
+.ka-it{ display:flex; flex-direction:column; gap:8px; } .ka-kop{ display:flex; justify-content:space-between; gap:10px; } .ka-kop b{ font-size:15px; }
+.ka-dl{ font-size:12.5px; font-weight:700; color:var(--zacht); white-space:nowrap; } .ka-dl.laat{ color:var(--rood); }
+.ka-k{ display:grid; grid-template-columns:1fr 1fr; gap:6px; } .ka-k button{ border:1px solid var(--lijn); background:#fff; border-radius:10px; padding:10px 4px; font:600 13px inherit; font-family:inherit; color:var(--zacht); }
+.ka-k button.aan.uitgevoerd{ background:var(--groen); border-color:var(--groen); color:#fff; } .ka-k button.aan.gepland{ background:var(--blauw); border-color:var(--blauw); color:#fff; }
+.ka-k button.aan.probleem{ background:var(--oranje); border-color:var(--oranje); color:#fff; } .ka-k button.aan.uitv{ border-color:var(--blauw); color:var(--blauw); }
+.ka-veld{ display:flex; gap:6px; } .ka-veld input, .ka-veld select{ flex:1; min-width:0; } .ka-foto{ flex:0 0 52px; border:1px solid var(--lijn); background:#fff; border-radius:10px; }
 .c-adres{ display:flex; align-items:center; gap:10px; background:var(--veld); border-radius:10px; padding:10px 12px; } .c-adres b{ flex:1; overflow-wrap:anywhere; } .c-adres .knop{ width:auto; padding:8px 12px; font-size:14px; }
 </style>
 </head>
@@ -123,7 +136,7 @@ function melding(t, ms){ const m = document.createElement("div"); m.className = 
 function ls(k, v){ try{ if(v===undefined) return JSON.parse(localStorage.getItem(k)||"null"); localStorage.setItem(k, JSON.stringify(v)); }catch(e){ return null; } }
 
 /* --- opslag op de gsm (IndexedDB; foto's als blob) --- */
-function dbOpen(){ return new Promise(res=>{ try{ const r = indexedDB.open("rondgang-app", 3); r.onupgradeneeded = ()=>{ const d = r.result; ["rg","cm","me"].forEach(n=>{ if(!d.objectStoreNames.contains(n)) d.createObjectStore(n, {keyPath:"id"}); }); }; r.onsuccess = ()=>res(r.result); r.onerror = ()=>res(null); }catch(e){ res(null); } }); }
+function dbOpen(){ return new Promise(res=>{ try{ const r = indexedDB.open("rondgang-app", 4); r.onupgradeneeded = ()=>{ const d = r.result; ["rg","cm","me","ka"].forEach(n=>{ if(!d.objectStoreNames.contains(n)) d.createObjectStore(n, {keyPath:"id"}); }); }; r.onsuccess = ()=>res(r.result); r.onerror = ()=>res(null); }catch(e){ res(null); } }); }
 function dbAlles(){ return new Promise(res=>{ if(!db) return res(lijst); try{ const q = db.transaction("rg").objectStore("rg").getAll(); q.onsuccess = ()=>res(q.result||[]); q.onerror = ()=>res([]); }catch(e){ res([]); } }); }
 function dbZet(r){ return new Promise(res=>{ if(!db) return res(); try{ const t = db.transaction("rg","readwrite"); t.objectStore("rg").put(r); t.oncomplete = ()=>res(); t.onerror = ()=>{ melding("Bewaren op de gsm lukte niet (geheugen vol?)."); res(); }; }catch(e){ res(); } }); }
 function dbWeg(id){ return new Promise(res=>{ if(!db) return res(); try{ const t = db.transaction("rg","readwrite"); t.objectStore("rg").delete(id); t.oncomplete = ()=>res(); t.onerror = ()=>res(); }catch(e){ res(); } }); }
@@ -132,11 +145,12 @@ async function bewaar(r){ r.gewijzigd = new Date().toISOString(); const i = lijs
 /* --- gebouwenlijst: komt mee in de link uit het programma (#g=…), wordt op de gsm onthouden ---
    De lijst blijft in het adres staan: een app op het beginscherm van de iPhone heeft een eigen geheugen, los van Safari,
    en leest de lijst zo bij elke start opnieuw uit haar eigen adres. (Het deel na # wordt nooit naar de server gestuurd.) */
-function leesLink(){ const h = location.hash; if(h.startsWith("#g=")) laadGebouwenUit(h, true); else if(h.startsWith("#c=")) laadConditieUit(h, true); else if(h.startsWith("#m=")) laadMeldUit(h, true); }
+function leesLink(){ const h = location.hash; if(h.startsWith("#g=")) laadGebouwenUit(h, true); else if(h.startsWith("#c=") || h.startsWith("#c2=")) laadConditieUit(h, true); else if(h.startsWith("#m=")) laadMeldUit(h, true); else if(h.startsWith("#k=")) laadKUit(h, true); }
 // leest de gebouwenlijst uit een link of uit geplakte tekst die "#g=…" bevat; geeft true terug als het lukte
 function laadGebouwenUit(tekst, stil){
-  if(/#c=/.test(String(tekst||"")) && !/#g=/.test(String(tekst||""))) return laadConditieUit(tekst, stil);
+  if(/#c2?=/.test(String(tekst||"")) && !/#g=/.test(String(tekst||""))) return laadConditieUit(tekst, stil);
   if(/#m=/.test(String(tekst||"")) && !/#g=/.test(String(tekst||""))) return laadMeldUit(tekst, stil);
+  if(/#k=/.test(String(tekst||""))) return laadKUit(tekst, stil);
   const m = String(tekst||"").match(/#g=([A-Za-z0-9_\-]+)/); if(!m){ if(!stil) melding("In deze tekst staat geen gebouwenlijst. Kopieer de volledige link uit de mail.", 4000); return false; }
   try{ const s = atob(m[1].replace(/-/g,"+").replace(/_/g,"/")); const b = new Uint8Array([...s].map(c=>c.charCodeAt(0))); const j = JSON.parse(new TextDecoder().decode(b));
     if(!Array.isArray(j.g)) throw new Error("geen lijst");
@@ -172,7 +186,7 @@ const urls = new Map(); function fotoUrl(b){ if(!urls.has(b)) urls.set(b, URL.cr
 function kop(titel, sub, terug){ $("#titel").innerHTML = `${esc(titel)}<small>${esc(sub||"")}</small>`; $("#terug").hidden = !terug; }
 function onder(html){ $("#onderBinnen").innerHTML = html; $("#onder").hidden = !html; }
 function toon(){ window.scrollTo(0,0); if(staat.scherm==="start" && tegels().length===1) staat = {scherm:tegels()[0]};
-  ({start:schermStart, lijst:schermLijst, rg:schermRondgang, punt:schermPunt, instel:schermInstel, cLijst:schermCLijst, cMeting:schermCMeting, cGebrek:schermCGebrek, mLijst:schermMLijst, mMelding:schermMMelding})[staat.scherm](); }
+  ({start:schermStart, lijst:schermLijst, rg:schermRondgang, punt:schermPunt, instel:schermInstel, cLijst:schermCLijst, cMeting:schermCMeting, cGebrek:schermCGebrek, mLijst:schermMLijst, mMelding:schermMMelding, kLijst:schermKLijst})[staat.scherm](); }
 const huidig = () => lijst.find(r=>r.id===staat.rid);
 
 function schermLijst(){
@@ -289,8 +303,8 @@ async function fotosErbij(files){
     r.verzonden = ""; await bewaar(r); clItemVernieuw(r, iid); return; }
   if(staat.scherm!=="punt" || !concept) return; const l = [...(files||[])]; if(!l.length) return;
   for(const f of l){ const b = await verklein(f); if(b) concept.fotos.push(b); else melding("Een foto kon niet gelezen worden."); } toon(); }
-$("#camera").onchange = e=>{ fotosErbij(e.target.files); e.target.value = ""; };
-$("#bib").onchange = e=>{ fotosErbij(e.target.files); e.target.value = ""; };
+$("#camera").onchange = e=>{ (kFotoDoel ? kFotosErbij : fotosErbij)(e.target.files); e.target.value = ""; };
+$("#bib").onchange = e=>{ (kFotoDoel ? kFotosErbij : fotosErbij)(e.target.files); e.target.value = ""; };
 
 function schermInstel(){
   kop("Instellingen", "", true);
@@ -338,14 +352,14 @@ function bevestig(vraag, knop, ok){ const d = document.createElement("div"); d.c
 /* ======================= Startscherm: kiezen wat je opmaakt ======================= */
 const heeftR = () => gebouwen().length>0;
 const heeftC = () => !!(cData()?.g?.length);
-const tegels = () => [heeftR() && "lijst", heeftC() && "cLijst", heeftM() && "mLijst"].filter(Boolean);
+const tegels = () => [heeftK() && "kLijst", heeftR() && "lijst", heeftC() && "cLijst", heeftM() && "mLijst"].filter(Boolean);
 const beide = () => tegels().length > 1;
 function schermStart(){
   kop("Gebouwen", "Houthalen-Helchteren", false);
   const rBezig = lijst.filter(r=>!r.verzonden).length, cBezig = metingen.filter(m=>!m.verzonden).length, mBezig = meldingen.filter(m=>!m.verzonden).length;
   const tegel = (naar, ic, titel, sub, n) => `<button class="tegel" data-naar="${naar}"><span class="tegel-ic">${ic}</span><span class="tegel-tx"><b>${titel}</b><span>${sub}</span></span>${n?`<span class="pil bezig">${n} bezig</span>`:""}</button>`;
-  $("#scherm").innerHTML = heeftR() || heeftC()
-    ? `<p class="uitleg" style="margin:2px 2px 0">Wat ga je opmaken?</p>${heeftR() ? tegel("lijst", "&#128694;", "Rondgang", "Preventie: vaststellingen en checklist", rBezig) : ""}${heeftC() ? tegel("cLijst", "&#127970;", "Conditiestaat", "Bouwdelen en gebreken (NEN 2767)", cBezig) : ""}${heeftM() ? tegel("mLijst", "&#9888;&#65039;", "Melding", "Onveilige situatie melden aan preventie", mBezig) : ""}`
+  $("#scherm").innerHTML = heeftR() || heeftC() || heeftK()
+    ? `<p class="uitleg" style="margin:2px 2px 0">Wat ga je opmaken?</p>${heeftK() ? tegel("kLijst", "&#128203;", "Mijn acties", "Gevraagd door de preventiedienst", 0) : ""}${heeftR() ? tegel("lijst", "&#128694;", "Rondgang", "Preventie: vaststellingen en checklist", rBezig) : ""}${heeftC() ? tegel("cLijst", "&#127970;", "Conditiestaat", "Bouwdelen en gebreken (NEN 2767)", cBezig) : ""}${heeftM() ? tegel("mLijst", "&#9888;&#65039;", "Melding", "Onveilige situatie melden aan preventie", mBezig) : ""}`
     : `<div class="kaart leeg"><p><b>Welkom</b></p><p class="uitleg" style="margin-top:6px">Open de link die je kreeg (uit het preventieprogramma, uit projectopvolging of een meldlink), of plak ze hieronder.</p></div>${inlaadKaart()}`;
   document.querySelectorAll(".tegel").forEach(b=>b.onclick = ()=>{ staat = {scherm:b.dataset.naar}; toon(); });
   inlaadKoppel(); onder("");
@@ -357,12 +371,23 @@ function schermStart(){
 let metingen = [], cConcept = null, cFotoDoel = null, cScroll = 0; const cOpen = new Set();
 const NEN_STD = {"3-3":[3,4,5,6,6], "3-2":[2,3,4,5,6], "3-1":[1,2,3,4,5], "2-3":[2,3,4,5,6], "2-2":[1,2,3,4,5], "2-1":[1,1,2,3,4], "1-3":[1,2,3,4,5], "1-2":[1,1,2,3,4], "1-1":[1,1,1,2,3]};
 const ERNST = ["", "gering", "serieus", "ernstig"], INTENS = ["", "begin", "gevorderd", "eind"], OMVANG = ["", "< 2 %", "2–10 %", "10–30 %", "30–70 %", "≥ 70 %"];
-const ASPECTEN = [["veiligheid","Veiligheid","&#9888;"],["gezondheid","Gezondheid","&#10010;"],["gebruik","Gebruik","&#9881;"],["wetgeving","Wetgeving","&#9878;"],["instandhouding","Instandhouding","&#127970;"]];
+const ASPECTEN_STD = [["veiligheid","Veiligheid","&#9888;"],["gezondheid","Gezondheid","&#10010;"],["gebruik","Gebruik","&#9881;"],["wetgeving","Wetgeving","&#9878;"],["instandhouding","Instandhouding","&#127970;"],["vervolgschade","Technische vervolgschade","&#128165;"],["klachten","Meer klachtenonderhoud","&#128222;"],["cultuur","Cultuurhistorische waarde","&#127963;&#65039;"],["beleving","Beleving","&#127912;"]];
+const aspL = () => cData()?.asp || ASPECTEN_STD;
 const URGENTIE = [["nu","Nu",0],["1j","1 jaar",1],["5j","1–5 jaar",3],["later","Later",null]];
 const GEBREK_STD = ["Lekkage","Scheurvorming","Corrosie / roest","Rot / houtaantasting","Vocht / schimmel","Afbladderende verf","Beschadiging","Loszittend / instabiel","Slijtage","Vervuiling / verstopping","Ontbrekende onderdelen","Werkt niet / defect","Verouderd / einde levensduur","Niet conform regelgeving"];
 const C_LABEL = ["", "uitstekend", "goed", "redelijk", "matig", "slecht", "zeer slecht"], C_KLEUR = ["#9AA4AE", "#2E7D32", "#7CB342", "#F9A825", "#FB8C00", "#E53935", "#8E1B1B"];
 function linkJson(b64){ const s = atob(b64.replace(/-/g,"+").replace(/_/g,"/")); return JSON.parse(new TextDecoder().decode(new Uint8Array([...s].map(c=>c.charCodeAt(0))))); }
 function laadConditieUit(tekst, stil){
+  const k = String(tekst||"").match(/#c2=([A-Za-z0-9_\-]+)/);
+  if(k){   // gecomprimeerde link (projectopvolging 9.20)
+    if(!window.DecompressionStream){ melding("Deze gsm kan de link niet lezen. Werk iOS bij (16.4 of nieuwer) en probeer opnieuw.", 6000); return false; }
+    return (async()=>{ try{ const s = atob(k[1].replace(/-/g,"+").replace(/_/g,"/")), u8 = new Uint8Array([...s].map(c=>c.charCodeAt(0)));
+        const txt = await new Response(new Blob([u8]).stream().pipeThrough(new DecompressionStream("deflate-raw"))).text(), j = JSON.parse(txt);
+        if(!Array.isArray(j.g) || !Array.isArray(j.d)) throw new Error("onvolledig");
+        const nieuw = JSON.stringify(j)!==JSON.stringify(ls("cm-data")||null); ls("cm-data", j);
+        if(nieuw || !stil) melding(`${j.g.length} gebouwen en ${j.d.length} bouwdelen ingeladen.`); toon(); return true;
+      }catch(e){ melding("De gegevens in deze link konden niet gelezen worden."); return false; } })();
+  }
   const m = String(tekst||"").match(/#c=([A-Za-z0-9_\-]+)/); if(!m){ if(!stil) melding("In deze tekst staan geen gegevens voor de conditiestaat. Kopieer de volledige link uit de mail.", 4000); return false; }
   try{ const j = linkJson(m[1]); if(!Array.isArray(j.g) || !Array.isArray(j.d)) throw new Error("onvolledig");
     const nieuw = JSON.stringify(j)!==JSON.stringify(ls("cm-data")||null); ls("cm-data", j);
@@ -375,12 +400,32 @@ const cGroepVan = id => cDeel(id)?.[2] || "overig";
 const cGroepNaam = id => ((cData()?.gr||[]).find(g=>g[0]===id)||[])[1] || "Overige";
 function cDelenVoorGebouw(gid){ const d = cData(), g = cGeb(gid), t = g && g[2] ? (d.t||[]).find(x=>x[0]===g[2]) : null; return (d.d||[]).filter(x=>!t || (t[2]||[]).includes(x[0])).map(x=>x[0]); }
 function cNen(g){ const t = cData()?.nen || NEN_STD, r = t[`${g.ernst}-${g.intensiteit}`] || NEN_STD[`${g.ernst}-${g.intensiteit}`]; return r ? r[(Number(g.omvang)||1)-1] : null; }
-function cScore(x){ if(!x || x.nvt) return 0; const l = (x.gebreken||[]).map(cNen).filter(Boolean); return l.length ? Math.max(...l) : (x.score||0); }
-const cKlaar = x => !!x && !!(x.nvt || (x.gebreken||[]).length || x.score);
-function cTel(m){ const ids = m.deelIds||[], d = m.delen||{}; return {n:ids.length, b:ids.filter(id=>cKlaar(d[id])).length, g:ids.reduce((s,id)=>s+(d[id]?.gebreken||[]).length, 0), f:ids.reduce((s,id)=>s+(d[id]?.fotos||[]).length, 0)}; }
+function cScore(x){ if(!x || x.nvt || x.nb) return 0; const l = (x.gebreken||[]).map(cNen).filter(Boolean); return l.length ? Math.max(...l) : (x.score||0); }
+const cKlaar = x => !!x && !!(x.nvt || x.nb || (x.gebreken||[]).length || x.score);
+function cTel(m){ const ids = m.deelIds||[], d = m.delen||{}; return {n:ids.length, b:ids.filter(id=>cKlaar(d[id])).length, nb:ids.filter(id=>d[id]?.nb).length, g:ids.reduce((s,id)=>s+(d[id]?.gebreken||[]).length, 0), f:ids.reduce((s,id)=>s+(d[id]?.fotos||[]).length, 0)}; }
 const cBol = s => s ? `<span class="c-bol" style="background:${C_KLEUR[s]}" title="${C_LABEL[s]}">${s}</span>` : `<span class="c-bol leeg"></span>`;
 const cUrgJaar = u => { const x = URGENTIE.find(y=>y[0]===u); return x && x[2]!==null ? new Date().getFullYear() + x[2] : ""; };
 const cHuidig = () => metingen.find(m=>m.id===staat.mid);
+/* gegevens per bouwdeel (hoeveelheid, eenheid, materiaal, jaar): wat in de link stond, of wat hier aangepast werd */
+function cInv(m, id){ const x = (m.delen||{})[id]; if(x?.inv) return x.inv; const a = cData()?.iv?.[m.gebouwId]?.[id]; return a ? {h:a[0], e:a[1], m:a[2], j:a[3]} : null; }
+const cInvTekst = i => i ? [i.h ? `${String(i.h).replace(".",",")} ${i.e||""}`.trim() : "", i.m||"", i.j ? "jaar "+i.j : ""].filter(Boolean).join(" · ") : "";
+/* de vorige meting van dit gebouw (uit projectopvolging): {datum, nvt, s, gb:[[gebrek, ernst, intensiteit, omvang, urgentie, maatregel, aspecten, kosten, jaar]]} */
+function cVorig(m, id){ const v = cData()?.vm?.[m.gebouwId]; if(!v || !(id in (v[1]||{}))) return null; const w = v[1][id], datum = dNL(v[0]);
+  return w===0 ? {datum, nvt:true} : Array.isArray(w) ? {datum, s:w[0], gb:w[1]} : {datum, s:w}; }
+function cVorigGebrek(x, g, i, k){ const n = {id:nieuwId(), gebrek:g[0], ernst:g[1]||2, intensiteit:g[2]||2, omvang:g[3]||2, urgentie:g[4]||"5j", maatregel:g[5]||"", aspecten:g[6]||[], kosten:g[7]||"", jaar:g[8]||""};
+  x.gebreken = [...(x.gebreken||[]), n]; x.vh = {...(x.vh||{}), [i]:k}; delete x.score; delete x.nvt; delete x.nb; return n; }
+function cInvBewerk(m, did, gid){
+  const i = cInv(m, did) || {}, d = document.createElement("div"); d.className = "bevestig";
+  d.innerHTML = `<div class="kaart velden"><p style="font-weight:700">${esc(cDeel(did)?.[1]||did)}</p>
+    <div class="rij"><div style="flex:1.3"><label class="lbl" for="iv-h">Hoeveelheid</label><input type="text" id="iv-h" inputmode="decimal" value="${esc(i.h||"")}"></div>
+      <div style="flex:1"><label class="lbl" for="iv-e">Eenheid</label><input type="text" id="iv-e" list="dl-ie" value="${esc(i.e||"")}" autocomplete="off"><datalist id="dl-ie">${["m²","m","st.","m³","post"].map(e=>`<option value="${e}">`).join("")}</datalist></div></div>
+    <div><label class="lbl" for="iv-m">Materiaal / type</label><input type="text" id="iv-m" value="${esc(i.m||"")}" placeholder="bv. EPDM, aluminium, hout"></div>
+    <div><label class="lbl" for="iv-j">Jaar van plaatsing of renovatie</label><input type="text" id="iv-j" inputmode="numeric" value="${esc(i.j||"")}"></div>
+    <button class="knop hoofd" id="ivOk">Bewaren</button><button class="knop licht" id="ivNee">Annuleren</button></div>`;
+  document.body.appendChild(d); d.onclick = e=>{ if(e.target===d) d.remove(); }; d.querySelector("#ivNee").onclick = ()=>d.remove();
+  d.querySelector("#ivOk").onclick = async ()=>{ const v = id => d.querySelector(id).value.trim(), n = {h:Number(v("#iv-h").replace(",","."))||"", e:v("#iv-e"), m:v("#iv-m"), j:Number(v("#iv-j").replace(/[^\d]/g,""))||""};
+    const x = m.delen[did] = m.delen[did] || {}; x.inv = n; d.remove(); m.verzonden = ""; cGroepVernieuw(m, gid); await cBewaar(m); melding("Gegevens bewaard op de gsm."); };
+}
 
 /* --- opslag op de gsm --- */
 function cStore(mode){ return db && db.objectStoreNames.contains("cm") ? db.transaction("cm", mode||"readonly").objectStore("cm") : null; }
@@ -407,10 +452,17 @@ function schermCLijst(){
 /* --- de meting: per hoofdgroep de bouwdelen; tikken vernieuwt enkel die groep, het scherm verspringt niet --- */
 function cGroepen(m){ const o = (cData()?.gr||[]).map(g=>g[0]), l = [...new Set((m.deelIds||[]).map(cGroepVan))]; return l.sort((a,b)=>(o.indexOf(a)<0?999:o.indexOf(a)) - (o.indexOf(b)<0?999:o.indexOf(b))); }
 function cDeelHtml(m, id){
-  const x = (m.delen||{})[id] || {}, gb = x.gebreken||[], f = x.fotos||[], st = x.nvt ? "nvt" : gb.length ? "gb" : x.score ? "ok" : "";
-  return `<div class="c-deel ${st}" data-d="${esc(id)}"><div class="c-dkop">${st==="nvt" ? `<span class="c-bol nvt">&ndash;</span>` : cBol(cScore(x))}<span class="c-dnaam">${esc(cDeel(id)?.[1]||x.naam||id)}</span></div>
-    <div class="c-k"><button data-act="geen" class="${st==="ok"?"aan ok":""}" ${gb.length?"disabled":""}>&#10004; geen gebreken</button><button data-act="nvt" class="${st==="nvt"?"aan nvt":""}" ${gb.length?"disabled":""}>n.v.t.</button><button data-act="gebrek" class="gb">+ gebrek</button><button data-act="foto" class="foto" aria-label="Foto nemen">&#128247;</button><button data-act="bib" class="foto" aria-label="Foto uit je bibliotheek">&#128444;</button></div>
-    ${gb.map(g=>`<button class="c-gb" data-act="gb" data-gb="${esc(g.id)}">${cBol(cNen(g))}<span><b>${esc(g.gebrek)}</b><small>${ERNST[g.ernst]} · ${INTENS[g.intensiteit]} · ${OMVANG[g.omvang]} · ${(URGENTIE.find(u=>u[0]===g.urgentie)||[])[1]||""}${Number(g.kosten)?` · € ${Number(g.kosten).toLocaleString("nl-BE")}`:""} ${(g.aspecten||[]).map(a=>(ASPECTEN.find(z=>z[0]===a)||[])[2]).join("")}</small></span></button>`).join("")}
+  const x = (m.delen||{})[id] || {}, gb = x.gebreken||[], f = x.fotos||[], st = x.nvt ? "nvt" : x.nb ? "nb" : gb.length ? "gb" : x.score ? "ok" : "";
+  const inv = cInvTekst(cInv(m, id)), v = cVorig(m, id), vh = x.vh||{};
+  const vGb = v && Array.isArray(v.gb) ? v.gb.map((g,i)=>({g, i})).filter(o=>!vh[o.i]) : [];
+  return `<div class="c-deel ${st}" data-d="${esc(id)}"><div class="c-dkop">${st==="nvt" ? `<span class="c-bol nvt">&ndash;</span>` : st==="nb" ? `<span class="c-bol nb">?</span>` : cBol(cScore(x))}<span class="c-dnaam">${esc(cDeel(id)?.[1]||x.naam||id)}</span></div>
+    <button class="c-inv ${x.inv?"gewijzigd":""}" data-act="inv">${inv ? `&#8505;&#65039; ${esc(inv)}` : "&#10133; gegevens"}</button>
+    ${v ? `<div class="c-vorig">vorige ${esc(v.datum)}: ${v.nvt ? "n.v.t." : `${cBol(v.s)} ${v.gb ? esc(v.gb.map(g=>g[0]).join(", ")) : C_LABEL[v.s]||""}`}</div>` : ""}
+    <div class="c-k"><button data-act="geen" class="${st==="ok" && x.score===1?"aan ok":""}" ${gb.length?"disabled":""}>&#10004; geen gebreken</button><button data-act="nvt" class="${st==="nvt"?"aan nvt":""}" ${gb.length?"disabled":""}>n.v.t.</button><button data-act="gebrek" class="gb">+ gebrek</button><button data-act="foto" class="foto" aria-label="Foto nemen">&#128247;</button><button data-act="bib" class="foto" aria-label="Foto uit je bibliotheek">&#128444;</button></div>
+    <div class="c-k2">${v && !cKlaar(x) && !vGb.length ? `<button data-act="vorig">&#8634; zoals vorige keer</button>` : ""}${vGb.length ? `<button data-act="vorigAlle">&#8634; alle gebreken nog aanwezig</button>` : ""}<button data-act="nb" class="${st==="nb"?"aan":""}" ${gb.length?"disabled":""}>niet bekeken</button></div>
+    ${vGb.map(({g, i})=>`<div class="c-vgb"><span>${cBol(cNen({ernst:g[1], intensiteit:g[2], omvang:g[3]}))}<b>${esc(g[0])}</b></span><span class="c-vgb-k"><button data-act="vA" data-i="${i}">nog aanwezig</button><button data-act="vE" data-i="${i}">erger</button><button data-act="vH" data-i="${i}" class="h">hersteld</button></span></div>`).join("")}
+    ${(x.hersteld||[]).length ? `<div class="c-herst">&#10004; hersteld: ${esc(x.hersteld.join(", "))}</div>` : ""}
+    ${gb.map(g=>`<button class="c-gb" data-act="gb" data-gb="${esc(g.id)}">${cBol(cNen(g))}<span><b>${esc(g.gebrek)}</b><small>${ERNST[g.ernst]} · ${INTENS[g.intensiteit]} · ${OMVANG[g.omvang]} · ${(URGENTIE.find(u=>u[0]===g.urgentie)||[])[1]||""}${Number(g.kosten)?` · € ${Number(g.kosten).toLocaleString("nl-BE")}`:""} ${(g.aspecten||[]).map(a=>(aspL().find(z=>z[0]===a)||[])[2]).join("")}</small></span></button>`).join("")}
     ${f.length ? `<div class="cl-fotos">${f.map((b,j)=>`<div><img src="${fotoUrl(b)}" alt=""><button data-act="fw" data-j="${j}" aria-label="Foto verwijderen">&times;</button></div>`).join("")}</div>` : ""}</div>`;
 }
 function cGroepHtml(m, gid){
@@ -419,7 +471,7 @@ function cGroepHtml(m, gid){
     ${ids.map(id=>cDeelHtml(m, id)).join("")}
     ${klaar<ids.length ? `<button class="knop licht c-rest" data-act="rest">Rest van ${esc(cGroepNaam(gid).toLowerCase())}: geen gebreken</button>` : ""}</details>`;
 }
-function cTellers(m){ const t = cTel(m); if($("#c-tel")){ $("#c-tel").textContent = `${t.b}/${t.n} bouwdelen bekeken`; $("#c-tel2").textContent = `${t.g} gebrek${t.g===1?"":"en"} · ${t.f} foto${t.f===1?"":"'s"}`; $("#c-balk").style.width = (t.n ? Math.round(t.b/t.n*100) : 0)+"%"; }
+function cTellers(m){ const t = cTel(m); if($("#c-tel")){ $("#c-tel").textContent = `${t.b}/${t.n} bouwdelen bekeken`; $("#c-tel2").textContent = `${t.g} gebrek${t.g===1?"":"en"} · ${t.f} foto${t.f===1?"":"'s"}${t.nb?` · ${t.nb} niet bekeken`:""}`; $("#c-balk").style.width = (t.n ? Math.round(t.b/t.n*100) : 0)+"%"; }
   if($("#cVerzend")) $("#cVerzend").disabled = !(t.b || (m.opmerking||"").trim()); }
 function cGroepVernieuw(m, gid){ const el = document.querySelector(`.c-groep[data-g="${CSS.escape(gid)}"]`); if(el){ el.outerHTML = cGroepHtml(m, gid); cToggleKoppel(); } cTellers(m); }
 function cToggleKoppel(){ document.querySelectorAll(".c-groep").forEach(d=>{ if(d._k) return; d._k = 1; d.addEventListener("toggle", ()=>{ if(d.open) cOpen.add(d.dataset.g); else cOpen.delete(d.dataset.g); }); }); }
@@ -434,7 +486,7 @@ function schermCMeting(){
       <div class="rij"><div style="flex:1"><label class="lbl" for="c-dat">Datum</label><input type="date" id="c-dat" value="${esc(m.datum)}"></div>
         <div style="flex:1.3"><label class="lbl" for="c-door">Wie meet?</label><input type="text" id="c-door" list="dl-cn" value="${esc(m.door)}" placeholder="je naam" autocomplete="off"><datalist id="dl-cn">${(d.n||[]).map(n=>`<option value="${esc(n)}">`).join("")}</datalist></div></div></div>
     ${!m.gebouwId ? `<div class="kaart leeg uitleg">Kies eerst het gebouw. De bouwdelen volgen het gebouwtype uit projectopvolging.</div>` : `
-    <div class="kaart"><div class="c-voortgang"><b id="c-tel">${t.b}/${t.n} bouwdelen bekeken</b><span id="c-tel2">${t.g} gebrek${t.g===1?"":"en"} · ${t.f} foto${t.f===1?"":"'s"}</span></div><div class="c-balk"><i id="c-balk" style="width:${t.n?Math.round(t.b/t.n*100):0}%"></i></div></div>
+    <div class="kaart"><div class="c-voortgang"><b id="c-tel">${t.b}/${t.n} bouwdelen bekeken</b><span id="c-tel2">${t.g} gebrek${t.g===1?"":"en"} · ${t.f} foto${t.f===1?"":"'s"}${t.nb?` · ${t.nb} niet bekeken`:""}</span></div><div class="c-balk"><i id="c-balk" style="width:${t.n?Math.round(t.b/t.n*100):0}%"></i></div></div>
     <div id="c-groepen">${cGroepen(m).map(g=>cGroepHtml(m, g)).join("")}</div>
     <div class="kaart"><label class="lbl" for="c-opm">Algemene opmerking</label><textarea id="c-opm" placeholder="bv. algemene indruk van het gebouw">${esc(m.opmerking)}</textarea></div>
     <button class="mini weg" id="cWeg" style="align-self:center">deze meting van de gsm verwijderen</button>`}`;
@@ -451,8 +503,16 @@ function schermCMeting(){
     const x = did ? (m.delen[did] = m.delen[did] || {}) : null;
     if(act==="foto" || act==="bib"){ cFotoDoel = {mid:m.id, did}; $(act==="foto" ? "#camera" : "#bib").click(); return; }   // meteen, zodat de iPhone de camera toelaat
     if(act==="gebrek" || act==="gb"){ cScroll = window.scrollY; cConcept = null; staat = {scherm:"cGebrek", mid:m.id, did, gbid:act==="gb" ? k.dataset.gb : null}; toon(); return; }
-    if(act==="geen"){ if(x.score===1) delete x.score; else { x.score = 1; delete x.nvt; } }
-    else if(act==="nvt"){ if(x.nvt) delete x.nvt; else { x.nvt = true; delete x.score; } }
+    if(act==="inv"){ cInvBewerk(m, did, gid); return; }
+    if(act==="geen"){ if(x.score===1) delete x.score; else { x.score = 1; delete x.nvt; delete x.nb; } }
+    else if(act==="nvt"){ if(x.nvt) delete x.nvt; else { x.nvt = true; delete x.score; delete x.nb; } }
+    else if(act==="nb"){ if(x.nb) delete x.nb; else { x.nb = true; delete x.score; delete x.nvt; } }
+    else if(act==="vorig"){ const v = cVorig(m, did); if(!v) return; if(v.nvt){ x.nvt = true; delete x.score; } else { x.score = v.s || 1; delete x.nvt; } delete x.nb; }
+    else if(act==="vorigAlle"){ const v = cVorig(m, did); (v?.gb||[]).forEach((g,i)=>{ if(!(x.vh||{})[i]) cVorigGebrek(x, g, i, "a"); }); }
+    else if(act==="vA" || act==="vH"){ const v = cVorig(m, did), i = Number(k.dataset.i), g = v?.gb?.[i]; if(!g) return;
+      if(act==="vA") cVorigGebrek(x, g, i, "a"); else { x.vh = {...(x.vh||{}), [i]:"h"}; x.hersteld = [...new Set([...(x.hersteld||[]), g[0]])]; } }
+    else if(act==="vE"){ const v = cVorig(m, did), i = Number(k.dataset.i), g = v?.gb?.[i]; if(!g) return; const n = cVorigGebrek(x, g, i, "e");
+      m.verzonden = ""; await cBewaar(m); cScroll = window.scrollY; cConcept = null; staat = {scherm:"cGebrek", mid:m.id, did, gbid:n.id}; toon(); return; }
     else if(act==="fw"){ (x.fotos||[]).splice(Number(k.dataset.j), 1); }
     else if(act==="rest"){ m.deelIds.filter(id=>cGroepVan(id)===gid && !cKlaar(m.delen[id])).forEach(id=>{ m.delen[id] = {...(m.delen[id]||{}), score:1}; }); }
     else return;
@@ -487,7 +547,7 @@ function schermCGebrek(){
       <div><label class="lbl">Omvang (deel van het bouwdeel)</label>${cSeg("g-o", [[1,"&lt;2%"],[2,"2–10"],[3,"10–30"],[4,"30–70"],[5,"&ge;70%"]], c.omvang)}</div>
       <div class="c-score" id="g-score">${score()}</div></div>
     <div class="kaart velden">
-      <div><label class="lbl">Invloed op</label><div class="chips" id="g-a">${ASPECTEN.map(([k,t,i])=>`<button data-v="${k}" class="${(c.aspecten||[]).includes(k)?"aan":""}">${i} ${t}</button>`).join("")}</div></div>
+      <div><label class="lbl">Invloed op</label><div class="chips" id="g-a">${aspL().map(([k,t,i])=>`<button data-v="${k}" class="${(c.aspecten||[]).includes(k)?"aan":""}">${i} ${t}</button>`).join("")}</div></div>
       <div><label class="lbl">Urgentie</label>${cSeg("g-u", URGENTIE.map(u=>[u[0],u[1]]), c.urgentie)}</div>
       <div class="rij"><div style="flex:1.4"><label class="lbl" for="g-k">Raming (€)</label><input type="text" id="g-k" inputmode="numeric" value="${esc(c.kosten||"")}" placeholder="niet verplicht"></div>
         <div style="flex:1"><label class="lbl" for="g-j">Jaar</label><input type="text" id="g-j" inputmode="numeric" value="${esc(c.jaar||"")}"></div></div>
@@ -534,15 +594,18 @@ async function cDelen(m, adres){
     const namen = (x.fotos||[]).map((f,j)=>`${basis}-${slug(id)}-${j+1}.jpg`); namen.forEach((n,j)=>files.push(new File([x.fotos[j]], n, {type:"image/jpeg"})));
     const uit = {naam};
     if(x.nvt) uit.nvt = true;
+    else if(x.nb && !(x.gebreken||[]).length) uit.nb = true;
     else if((x.gebreken||[]).length){ uit.gebreken = x.gebreken.map(g=>{ const o = {id:g.id, gebrek:g.gebrek, ernst:g.ernst, intensiteit:g.intensiteit, omvang:g.omvang, aspecten:g.aspecten||[], urgentie:g.urgentie};
         if((g.maatregel||"").trim()) o.maatregel = g.maatregel.trim(); if(Number(g.kosten)) o.kosten = Number(g.kosten); if(Number(g.jaar)) o.jaar = Number(g.jaar);
         regels.push(`– ${naam}: ${g.gebrek} (score ${cNen(g)}, ${(URGENTIE.find(u=>u[0]===g.urgentie)||[])[1]||""})`); return o; }); }
     else if(x.score) uit.score = x.score;
     if(namen.length) uit.fotos = namen;
+    if((x.hersteld||[]).length) uit.hersteld = x.hersteld.slice();
+    if(x.inv) uit.inv = {...x.inv};
     if(Object.keys(uit).length>1) delen[id] = uit; });
   const data = {type:"conditie-meting", versie:1, gemaakt:new Date().toISOString(), door:m.door, gebouw:{id:m.gebouwId, naam:m.gebouw}, datum:m.datum, opmerking:(m.opmerking||"").trim(), deelIds:m.deelIds, delen};
   const json = new File([JSON.stringify(data, null, 1)], basis+".json", {type:"application/json"});
-  const tekst = `${adres?`Aan: ${adres}\n\n`:""}Conditiemeting ${m.gebouw} – ${dNL(m.datum)} door ${m.door}\n${t.b}/${t.n} bouwdelen bekeken, ${t.g} gebrek${t.g===1?"":"en"}, ${files.length} foto${files.length===1?"":"'s"}.${regels.length?"\n\n"+regels.join("\n"):""}${data.opmerking?`\n\nOpmerking: ${data.opmerking}`:""}\n\nLees deze mail in in projectopvolging: Conditie → Inlezen uit de app.`;
+  const tekst = `${adres?`Aan: ${adres}\n\n`:""}Conditiemeting ${m.gebouw} – ${dNL(m.datum)} door ${m.door}\n${t.b}/${t.n} bouwdelen bekeken${t.nb?` (waarvan ${t.nb} niet bekeken)`:""}, ${t.g} gebrek${t.g===1?"":"en"}, ${files.length} foto${files.length===1?"":"'s"}.${regels.length?"\n\n"+regels.join("\n"):""}${data.opmerking?`\n\nOpmerking: ${data.opmerking}`:""}\n\nLees deze mail in in projectopvolging: Conditie → Inlezen uit de app.`;
   const alles = [json, ...files];
   try{
     if(navigator.canShare && navigator.canShare({files:alles})){ await navigator.share({files:alles, title:`Conditiemeting ${m.gebouw} ${dNL(m.datum)}`, text:tekst}); m.verzonden = vandaag(); await cBewaar(m); toon(); melding("Verzonden.", 3000); return; }
@@ -644,6 +707,85 @@ async function mDelen(x, adres){
   x.verzonden = vandaag(); await mBewaar(x); toon(); melding(`Delen lukt niet in deze browser. Het bestand is gedownload: stuur het als bijlage${adres?" naar "+adres:""}.`, 6000);
 }
 
+/* ======================= Mijn acties (link voor een coördinator, #k=…) =======================
+   De preventiedienst stuurt elke coördinator een link met zijn open acties. Per actie duidt hij aan: uitgevoerd (datum, opmerking, foto),
+   gepland op, uitvoerder of probleem. "Antwoord versturen" maakt één mail met een gegevensbestand (type "actie-antwoord") en de foto's.
+   De antwoorden blijven op het toestel (IndexedDB "ka") tot ze verzonden zijn; niets komt rechtstreeks in het preventieprogramma. */
+let kAnt = null, kFotoDoel = null;
+const kData = () => ls("ka-data");
+const heeftK = () => !!(kData()?.a?.length);
+function laadKUit(tekst, stil){
+  const m = String(tekst||"").match(/#k=([A-Za-z0-9_\-]+)/); if(!m){ if(!stil) melding("In deze tekst staat geen link met acties.", 4000); return false; }
+  if(!window.DecompressionStream){ melding("Deze gsm kan de link niet lezen. Werk iOS bij (16.4 of nieuwer) of open de link op de pc.", 6000); return false; }
+  return (async()=>{ try{ const s = atob(m[1].replace(/-/g,"+").replace(/_/g,"/")), u8 = new Uint8Array([...s].map(c=>c.charCodeAt(0)));
+      const j = JSON.parse(await new Response(new Blob([u8]).stream().pipeThrough(new DecompressionStream("deflate-raw"))).text());
+      if(!Array.isArray(j.a)) throw new Error("onvolledig");
+      ls("ka-data", j); await kLaad(); if(!stil) melding(`${j.a.length} actie${j.a.length===1?"":"s"} ingeladen.`); staat = {scherm:"kLijst"}; toon(); return true;
+    }catch(e){ melding("De acties in deze link konden niet gelezen worden."); return false; } })();
+}
+function kLaad(){ return new Promise(res=>{ const d = kData(); if(!d || !db || !db.objectStoreNames.contains("ka")){ kAnt = d ? {id:d.id, a:{}} : null; return res(); }
+  try{ const q = db.transaction("ka").objectStore("ka").get(d.id); q.onsuccess = ()=>{ kAnt = q.result || {id:d.id, a:{}}; res(); }; q.onerror = ()=>{ kAnt = {id:d.id, a:{}}; res(); }; }catch(e){ kAnt = {id:d.id, a:{}}; res(); } }); }
+function kBewaar(){ return new Promise(res=>{ if(!db || !kAnt || !db.objectStoreNames.contains("ka")) return res(); try{ const t = db.transaction("ka","readwrite"); t.objectStore("ka").put(kAnt); t.oncomplete = ()=>res(); t.onerror = ()=>res(); }catch(e){ res(); } }); }
+const K_KNOP = [["uitgevoerd","&#9989; uitgevoerd"],["gepland","&#128197; gepland op…"],["uitv","&#128296; uitvoerder"],["probleem","&#10067; probleem"]];
+function kKaart(x){
+  const [aid, titel, gebouw, dl, uitv, trekker, gepland] = x, r = kAnt.a[aid] || {}, d = kData(), laat = dl && dl < vandaag() && r.st!=="uitgevoerd";
+  const knop = ([k, t]) => `<button data-k="${k}" class="${(k==="uitv" ? !!r.uitv : r.st===k) ? "aan "+k : ""}">${k==="uitv" && r.uitv ? "&#128296; "+esc(r.uitv[1]) : t}</button>`;
+  return `<div class="kaart ka-it" data-a="${esc(aid)}"><div class="ka-kop"><b>${esc(titel)}</b>${dl ? `<span class="ka-dl ${laat?"laat":""}">${laat?"&#128308; ":""}${dNL(dl)}</span>` : ""}</div>
+    <div class="uitleg">${[gebouw, uitv ? "uitvoerder "+uitv : "uitvoerder nog aan te duiden", trekker ? "trekker "+trekker : ""].filter(Boolean).map(esc).join(" · ")}${gepland ? " · gepland "+dNL(gepland) : ""}</div>
+    <div class="ka-k">${K_KNOP.map(knop).join("")}</div>
+    ${r.st==="uitgevoerd" ? `<div class="ka-veld"><input type="date" data-v="datum" value="${esc(r.datum||vandaag())}"><input data-v="opm" placeholder="opmerking (niet verplicht)" value="${esc(r.opm||"")}"><button data-k="foto" class="ka-foto" aria-label="Foto">&#128247;${(r.fotos||[]).length?" "+r.fotos.length:""}</button></div>` : ""}
+    ${r.st==="gepland" ? `<div class="ka-veld"><input type="date" data-v="datum" value="${esc(r.datum||"")}"></div>` : ""}
+    ${r.st==="probleem" ? `<div class="ka-veld"><input data-v="opm" placeholder="wat is het probleem? bv. budget nodig, niet onze dienst" value="${esc(r.opm||"")}"></div>` : ""}
+    ${r.kies ? `<div class="ka-veld"><select data-v="uitv"><option value="">— kies wie het uitvoert —</option>${(d.n||[]).map(([pid, n])=>`<option value="${esc(pid)}" ${r.uitv?.[0]===pid?"selected":""}>${esc(n)}</option>`).join("")}</select></div>` : ""}</div>`;
+}
+function schermKLijst(){
+  const d = kData(); if(!d){ staat = {scherm:"start"}; return toon(); } if(!kAnt) kAnt = {id:d.id, a:{}};
+  kop("Mijn acties", `${d.c?.[1]||""}${d.dn?" · "+d.dn:""}`, tegels().length>1);
+  const n = Object.values(kAnt.a).filter(r=>r.st || r.uitv).length, laat = d.a.filter(x=>x[3] && x[3]<vandaag() && kAnt.a[x[0]]?.st!=="uitgevoerd").length;
+  $("#scherm").innerHTML = `<div class="kaart"><b>${d.a.length} open actie${d.a.length===1?"":"s"}</b>${laat?` · <span style="color:var(--rood); font-weight:700">${laat} over tijd</span>`:""}<p class="uitleg" style="margin-top:4px">Duid per actie aan wat er gebeurd is en verstuur daarna je antwoord. De preventiedienst verwerkt het.${kAnt.verzonden?` Laatst verzonden op ${dNL(kAnt.verzonden)}.`:""}</p></div>
+    <div id="ka-lijst">${d.a.map(kKaart).join("")}</div>`;
+  const l = $("#ka-lijst");
+  l.onclick = async e=>{ const b = e.target.closest("button[data-k]"); if(!b) return; const aid = b.closest(".ka-it").dataset.a, k = b.dataset.k, r = kAnt.a[aid] = kAnt.a[aid] || {};
+    if(k==="foto"){ kFotoDoel = aid; $("#camera").click(); return; }
+    if(k==="uitv") r.kies = !r.kies; else if(r.st===k){ delete r.st; delete r.datum; delete r.opm; } else { r.st = k; r.datum = k==="uitgevoerd" ? vandaag() : ""; }
+    kAnt.verzonden = ""; await kBewaar(); kVernieuw(aid); };
+  l.onchange = async e=>{ const v = e.target.dataset.v; if(!v) return; const aid = e.target.closest(".ka-it").dataset.a, r = kAnt.a[aid] = kAnt.a[aid] || {};
+    if(v==="uitv"){ const p = (d.n||[]).find(x=>x[0]===e.target.value); r.uitv = p ? [p[0], p[1]] : null; r.kies = false; kAnt.verzonden = ""; await kBewaar(); kVernieuw(aid); return; }
+    r[v] = e.target.value; kAnt.verzonden = ""; await kBewaar(); kTeller(); };
+  kTeller();
+}
+function kVernieuw(aid){ const el = document.querySelector(`.ka-it[data-a="${CSS.escape(aid)}"]`), x = kData().a.find(y=>y[0]===aid); if(el && x) el.outerHTML = kKaart(x); kTeller(); }
+function kTeller(){ const n = Object.values(kAnt.a).filter(r=>r.st || r.uitv).length;
+  onder(`<button class="knop hoofd" id="kVerzend" ${n?"":"disabled"}>&#9993; Antwoord versturen${n?` (${n})`:""}</button>`); if($("#kVerzend")) $("#kVerzend").onclick = kVerzenden; }
+async function kFotosErbij(files){ const aid = kFotoDoel; kFotoDoel = null; const r = kAnt?.a[aid]; if(!r) return; r.fotos = r.fotos||[];
+  for(const f of [...(files||[])]){ const b = await verklein(f); if(b) r.fotos.push(b); } kAnt.verzonden = ""; await kBewaar(); kVernieuw(aid); }
+function kVerzenden(){
+  const d = kData(), l = Object.entries(kAnt.a).filter(([,r])=>r.st || r.uitv);
+  if(l.some(([,r])=>r.st==="gepland" && !r.datum)){ melding("Vul bij “gepland op” een datum in."); return; }
+  if(l.some(([,r])=>r.st==="probleem" && !(r.opm||"").trim())){ melding("Schrijf kort wat het probleem is."); return; }
+  const adres = d.pm || "", w = document.createElement("div"); w.className = "bevestig";
+  w.innerHTML = `<div class="kaart"><p style="font-weight:700">Antwoord versturen</p><p class="uitleg">Kies in het volgende scherm je mail-app en stuur de mail naar${adres?":":" de preventiedienst."}</p>
+    ${adres ? `<div class="c-adres"><b>${esc(adres)}</b><button class="knop licht" id="kpKopie">Kopiëren</button></div>` : ""}<button class="knop hoofd" id="kpGa">&#9993; Verzenden</button><button class="knop licht" id="kpNee">Annuleren</button></div>`;
+  document.body.appendChild(w);
+  if(adres) w.querySelector("#kpKopie").onclick = async ()=>{ try{ await navigator.clipboard.writeText(adres); melding("Adres gekopieerd."); }catch(e){ melding("Kopiëren lukte niet."); } };
+  w.querySelector("#kpNee").onclick = ()=>w.remove(); w.onclick = e=>{ if(e.target===w) w.remove(); };
+  w.querySelector("#kpGa").onclick = ()=>{ w.remove(); kDelen(l, adres); };
+}
+async function kDelen(l, adres){
+  const d = kData(), basis = `acties-${slug(d.c?.[1]||"coordinator")}-${vandaag()}`, files = [], ant = [];
+  l.forEach(([aid, r])=>{ const x = d.a.find(y=>y[0]===aid); const namen = (r.st==="uitgevoerd" ? r.fotos||[] : []).map((f,j)=>{ const n = `${basis}-${slug(aid)}-${j+1}.jpg`; files.push(new File([f], n, {type:"image/jpeg"})); return n; });
+    ant.push({aid, titel:x?.[1]||"", st:r.st||"", datum:r.datum||"", opm:(r.opm||"").trim(), uitv:r.uitv||null, fotos:namen}); });
+  const data = {type:"actie-antwoord", versie:1, id:nieuwId(), link:d.id, gemaakt:new Date().toISOString(), pid:d.c?.[0]||"", door:d.c?.[1]||"", antwoorden:ant};
+  const json = new File([JSON.stringify(data, null, 1)], basis+".json", {type:"application/json"});
+  const lbl = {uitgevoerd:"uitgevoerd", gepland:"gepland op", probleem:"probleem"};
+  const tekst = `${adres?`Aan: ${adres}\n\n`:""}Antwoord van ${data.door} op de gevraagde acties:\n\n${ant.map(a=>`– ${a.titel}: ${[a.st ? lbl[a.st]+(a.datum?" "+dNL(a.datum):"") : "", a.uitv ? "uitvoerder "+a.uitv[1] : "", a.opm].filter(Boolean).join(" · ")}`).join("\n")}\n\nSleep deze mail in het preventieprogramma: Gevraagde acties → Antwoorden inlezen.`;
+  const alles = [json, ...files];
+  try{ if(navigator.canShare && navigator.canShare({files:alles})){ await navigator.share({files:alles, title:`Antwoord acties ${data.door}`, text:tekst}); kAnt.verzonden = vandaag(); await kBewaar(); toon(); melding("Verzonden. Bedankt!", 3000); return; } }catch(e){ if(e && e.name==="AbortError") return; }
+  const met = {...data, fotosData:{}}; for(const f of files) met.fotosData[f.name] = await new Promise(res=>{ const fr = new FileReader(); fr.onload = ()=>res(fr.result); fr.readAsDataURL(f); });
+  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify(met)], {type:"application/json"})); a.download = basis+".json"; document.body.appendChild(a); a.click(); a.remove();
+  kAnt.verzonden = vandaag(); await kBewaar(); toon(); melding(`Het bestand is gedownload: voeg het als bijlage toe aan een mail${adres?" naar "+adres:" aan de preventiedienst"}.`, 7000);
+}
+
 $("#terug").onclick = ()=>{ const s = staat.scherm;
   if(s==="punt"){ concept = null; staat = {scherm:"rg", rid:staat.rid}; }
   else if(s==="cGebrek"){ cConcept = null; staat = {scherm:"cMeting", mid:staat.mid}; }
@@ -654,7 +796,7 @@ $("#terug").onclick = ()=>{ const s = staat.scherm;
   toon(); };
 $("#instelKnop").onclick = ()=>{ staat = {scherm:"instel"}; toon(); };
 window.addEventListener("hashchange", ()=>{ leesLink(); staat = {scherm:"start"}; toon(); });
-(async()=>{ leesLink(); db = await dbOpen(); lijst = await dbAlles(); metingen = await cDbAlles(); meldingen = await mDbAlles(); staat = {scherm:"start"}; toon(); })();
+(async()=>{ leesLink(); db = await dbOpen(); lijst = await dbAlles(); metingen = await cDbAlles(); meldingen = await mDbAlles(); await kLaad(); staat = {scherm:"start"}; toon(); })();
 </script>
 </body>
 </html>
