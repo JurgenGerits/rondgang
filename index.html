@@ -107,6 +107,7 @@ select.sel{ width:100%; font:16px inherit; font-family:inherit; padding:11px 12p
 .c-score{ display:flex; align-items:center; gap:10px; background:var(--veld); border-radius:10px; padding:10px 12px; } .c-score .c-bol{ width:34px; height:34px; font-size:16px; }
 .chips{ display:flex; flex-wrap:wrap; gap:6px; } .chips button{ border:1px solid var(--lijn); background:#fff; border-radius:20px; padding:8px 12px; font:600 13px inherit; font-family:inherit; color:var(--zacht); }
 .chips button.aan{ background:var(--blauw); border-color:var(--blauw); color:#fff; }
+.ka-besl{background:#E8F0F8; border-left:4px solid #1F4E79; border-radius:8px; padding:8px 10px; margin:8px 0; font-size:14px;}
 .ka-it{ display:flex; flex-direction:column; gap:8px; } .ka-kop{ display:flex; justify-content:space-between; gap:10px; } .ka-kop b{ font-size:15px; }
 .ka-dl{ font-size:12.5px; font-weight:700; color:var(--zacht); white-space:nowrap; } .ka-dl.laat{ color:var(--rood); }
 .ka-k{ display:grid; grid-template-columns:1fr 1fr; gap:6px; } .ka-k button{ border:1px solid var(--lijn); background:#fff; border-radius:10px; padding:10px 4px; font:600 13px inherit; font-family:inherit; color:var(--zacht); }
@@ -728,10 +729,11 @@ function kLaad(){ return new Promise(res=>{ const d = kData(); if(!d || !db || !
 function kBewaar(){ return new Promise(res=>{ if(!db || !kAnt || !db.objectStoreNames.contains("ka")) return res(); try{ const t = db.transaction("ka","readwrite"); t.objectStore("ka").put(kAnt); t.oncomplete = ()=>res(); t.onerror = ()=>res(); }catch(e){ res(); } }); }
 const K_KNOP = [["uitgevoerd","&#9989; uitgevoerd"],["gepland","&#128197; gepland op…"],["uitv","&#128296; uitvoerder"],["probleem","&#10067; probleem"]];
 function kKaart(x){
-  const [aid, titel, gebouw, dl, uitv, trekker, gepland] = x, r = kAnt.a[aid] || {}, d = kData(), laat = dl && dl < vandaag() && r.st!=="uitgevoerd";
+  const [aid, titel, gebouw, dl, uitv, trekker, gepland, besl] = x, r = kAnt.a[aid] || {}, d = kData(), laat = dl && dl < vandaag() && r.st!=="uitgevoerd";
   const knop = ([k, t]) => `<button data-k="${k}" class="${(k==="uitv" ? !!r.uitv : r.st===k) ? "aan "+k : ""}">${k==="uitv" && r.uitv ? "&#128296; "+esc(r.uitv[1]) : t}</button>`;
   return `<div class="kaart ka-it" data-a="${esc(aid)}"><div class="ka-kop"><b>${esc(titel)}</b>${dl ? `<span class="ka-dl ${laat?"laat":""}">${laat?"&#128308; ":""}${dNL(dl)}</span>` : ""}</div>
     <div class="uitleg">${[gebouw, uitv ? "uitvoerder "+uitv : "uitvoerder nog aan te duiden", trekker ? "trekker "+trekker : ""].filter(Boolean).map(esc).join(" · ")}${gepland ? " · gepland "+dNL(gepland) : ""}</div>
+    ${besl ? `<div class="ka-besl">&#128737;&#65039; Preventie: ${esc(besl)}</div>` : ""}
     <div class="ka-k">${K_KNOP.map(knop).join("")}</div>
     ${r.st==="uitgevoerd" ? `<div class="ka-veld"><input type="date" data-v="datum" value="${esc(r.datum||vandaag())}"><input data-v="opm" placeholder="opmerking (niet verplicht)" value="${esc(r.opm||"")}"><button data-k="foto" class="ka-foto" aria-label="Foto">&#128247;${(r.fotos||[]).length?" "+r.fotos.length:""}</button></div>` : ""}
     ${r.st==="gepland" ? `<div class="ka-veld"><input type="date" data-v="datum" value="${esc(r.datum||"")}"></div>` : ""}
