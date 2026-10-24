@@ -114,6 +114,10 @@ select.sel{ width:100%; font:16px inherit; font-family:inherit; padding:11px 12p
 .ka-k button.aan.uitgevoerd{ background:var(--groen); border-color:var(--groen); color:#fff; } .ka-k button.aan.gepland{ background:var(--blauw); border-color:var(--blauw); color:#fff; }
 .ka-k button.aan.probleem{ background:var(--oranje); border-color:var(--oranje); color:#fff; } .ka-k button.aan.uitv{ border-color:var(--blauw); color:var(--blauw); }
 .ka-veld{ display:flex; gap:6px; } .ka-veld input, .ka-veld select{ flex:1; min-width:0; } .ka-foto{ flex:0 0 52px; border:1px solid var(--lijn); background:#fff; border-radius:10px; }
+.ap-welkom{ text-align:center; padding:26px 16px; } .ap-welkom b{ display:block; font-size:19px; margin-bottom:6px; }
+.ap-ok{ width:64px; height:64px; border-radius:50%; background:var(--groen); color:#fff; font-size:34px; line-height:64px; margin:0 auto 12px; }
+.ap-tip{ background:#FFF8E1; border:1px solid #F0D58A; font-size:14px; line-height:1.6; } .ap-tip span{ color:#8A6D1F; font-size:13px; }
+.ap-bdg{ background:var(--blauw); color:#fff; border-radius:12px; padding:2px 10px; font-weight:700; font-size:14px; } .ap-bdg.r{ background:var(--rood); }
 .c-adres{ display:flex; align-items:center; gap:10px; background:var(--veld); border-radius:10px; padding:10px 12px; } .c-adres b{ flex:1; overflow-wrap:anywhere; } .c-adres .knop{ width:auto; padding:8px 12px; font-size:14px; }
 </style>
 </head>
@@ -146,18 +150,19 @@ async function bewaar(r){ r.gewijzigd = new Date().toISOString(); const i = lijs
 /* --- gebouwenlijst: komt mee in de link uit het programma (#g=…), wordt op de gsm onthouden ---
    De lijst blijft in het adres staan: een app op het beginscherm van de iPhone heeft een eigen geheugen, los van Safari,
    en leest de lijst zo bij elke start opnieuw uit haar eigen adres. (Het deel na # wordt nooit naar de server gestuurd.) */
-function leesLink(){ const h = location.hash; if(h.startsWith("#g=")) laadGebouwenUit(h, true); else if(h.startsWith("#c=") || h.startsWith("#c2=")) laadConditieUit(h, true); else if(h.startsWith("#m=")) laadMeldUit(h, true); else if(h.startsWith("#k=")) laadKUit(h, true); }
+function leesLink(){ const h = location.hash; if(h.startsWith("#a=")) return laadAUit(h, true); if(h.startsWith("#g=")) laadGebouwenUit(h, true); else if(h.startsWith("#c=") || h.startsWith("#c2=")) laadConditieUit(h, true); else if(h.startsWith("#m=")) laadMeldUit(h, true); else if(h.startsWith("#k=")) laadKUit(h, true); }
 // leest de gebouwenlijst uit een link of uit geplakte tekst die "#g=…" bevat; geeft true terug als het lukte
 function laadGebouwenUit(tekst, stil){
   if(/#c2?=/.test(String(tekst||"")) && !/#g=/.test(String(tekst||""))) return laadConditieUit(tekst, stil);
   if(/#m=/.test(String(tekst||"")) && !/#g=/.test(String(tekst||""))) return laadMeldUit(tekst, stil);
   if(/#k=/.test(String(tekst||""))) return laadKUit(tekst, stil);
+  if(/#a=/.test(String(tekst||""))) return laadAUit(tekst, stil);
   const m = String(tekst||"").match(/#g=([A-Za-z0-9_\-]+)/); if(!m){ if(!stil) melding("In deze tekst staat geen gebouwenlijst. Kopieer de volledige link uit de mail.", 4000); return false; }
   try{ const s = atob(m[1].replace(/-/g,"+").replace(/_/g,"/")); const b = new Uint8Array([...s].map(c=>c.charCodeAt(0))); const j = JSON.parse(new TextDecoder().decode(b));
     if(!Array.isArray(j.g)) throw new Error("geen lijst");
     const c = Array.isArray(j.c) ? j.c : (ls("rg-checklists")||[]);
     const nieuw = JSON.stringify(j.g)!==JSON.stringify(ls("rg-gebouwen")||null) || JSON.stringify(c)!==JSON.stringify(ls("rg-checklists")||null);
-    ls("rg-gebouwen", j.g); ls("rg-checklists", c); if(j.pm) ls("rg-pm", j.pm); if(j.n && !ls("rg-naam")) ls("rg-naam", j.n);
+    ls("rg-gebouwen", j.g); ls("rg-checklists", c); apErbij("r"); if(j.pm) ls("rg-pm", j.pm); if(j.n && !ls("rg-naam")) ls("rg-naam", j.n);
     if(nieuw || !stil) melding(`${j.g.length} gebouwen${c.length?` en ${c.length} checklist${c.length===1?"":"s"}`:""} ingeladen.`); return true;
   }catch(e){ melding("De gebouwenlijst in deze link kon niet gelezen worden."); return false; } }
 function inlaadKaart(){
@@ -187,7 +192,7 @@ const urls = new Map(); function fotoUrl(b){ if(!urls.has(b)) urls.set(b, URL.cr
 function kop(titel, sub, terug){ $("#titel").innerHTML = `${esc(titel)}<small>${esc(sub||"")}</small>`; $("#terug").hidden = !terug; }
 function onder(html){ $("#onderBinnen").innerHTML = html; $("#onder").hidden = !html; }
 function toon(){ window.scrollTo(0,0); if(staat.scherm==="start" && tegels().length===1) staat = {scherm:tegels()[0]};
-  ({start:schermStart, lijst:schermLijst, rg:schermRondgang, punt:schermPunt, instel:schermInstel, cLijst:schermCLijst, cMeting:schermCMeting, cGebrek:schermCGebrek, mLijst:schermMLijst, mMelding:schermMMelding, kLijst:schermKLijst})[staat.scherm](); }
+  ({start:schermStart, welkom:schermWelkom, lijst:schermLijst, rg:schermRondgang, punt:schermPunt, instel:schermInstel, cLijst:schermCLijst, cMeting:schermCMeting, cGebrek:schermCGebrek, mLijst:schermMLijst, mMelding:schermMMelding, kLijst:schermKLijst})[staat.scherm](); }
 const huidig = () => lijst.find(r=>r.id===staat.rid);
 
 function schermLijst(){
@@ -353,9 +358,10 @@ function bevestig(vraag, knop, ok){ const d = document.createElement("div"); d.c
 /* ======================= Startscherm: kiezen wat je opmaakt ======================= */
 const heeftR = () => gebouwen().length>0;
 const heeftC = () => !!(cData()?.g?.length);
-const tegels = () => [heeftK() && "kLijst", heeftR() && "lijst", heeftC() && "cLijst", heeftM() && "mLijst"].filter(Boolean);
+const tegels = () => apData() ? (apData().o||[]).map(x=>AP_SCHERM[x]).filter(Boolean) : [heeftK() && "kLijst", heeftR() && "lijst", heeftC() && "cLijst", heeftM() && "mLijst"].filter(Boolean);
 const beide = () => tegels().length > 1;
 function schermStart(){
+  if(apData()) return schermStartAp();
   kop("Gebouwen", "Houthalen-Helchteren", false);
   const rBezig = lijst.filter(r=>!r.verzonden).length, cBezig = metingen.filter(m=>!m.verzonden).length, mBezig = meldingen.filter(m=>!m.verzonden).length;
   const tegel = (naar, ic, titel, sub, n) => `<button class="tegel" data-naar="${naar}"><span class="tegel-ic">${ic}</span><span class="tegel-tx"><b>${titel}</b><span>${sub}</span></span>${n?`<span class="pil bezig">${n} bezig</span>`:""}</button>`;
@@ -385,13 +391,13 @@ function laadConditieUit(tekst, stil){
     return (async()=>{ try{ const s = atob(k[1].replace(/-/g,"+").replace(/_/g,"/")), u8 = new Uint8Array([...s].map(c=>c.charCodeAt(0)));
         const txt = await new Response(new Blob([u8]).stream().pipeThrough(new DecompressionStream("deflate-raw"))).text(), j = JSON.parse(txt);
         if(!Array.isArray(j.g) || !Array.isArray(j.d)) throw new Error("onvolledig");
-        const nieuw = JSON.stringify(j)!==JSON.stringify(ls("cm-data")||null); ls("cm-data", j);
+        const nieuw = JSON.stringify(j)!==JSON.stringify(ls("cm-data")||null); ls("cm-data", j); apErbij("c");
         if(nieuw || !stil) melding(`${j.g.length} gebouwen en ${j.d.length} bouwdelen ingeladen.`); toon(); return true;
       }catch(e){ melding("De gegevens in deze link konden niet gelezen worden."); return false; } })();
   }
   const m = String(tekst||"").match(/#c=([A-Za-z0-9_\-]+)/); if(!m){ if(!stil) melding("In deze tekst staan geen gegevens voor de conditiestaat. Kopieer de volledige link uit de mail.", 4000); return false; }
   try{ const j = linkJson(m[1]); if(!Array.isArray(j.g) || !Array.isArray(j.d)) throw new Error("onvolledig");
-    const nieuw = JSON.stringify(j)!==JSON.stringify(ls("cm-data")||null); ls("cm-data", j);
+    const nieuw = JSON.stringify(j)!==JSON.stringify(ls("cm-data")||null); ls("cm-data", j); apErbij("c");
     if(nieuw || !stil) melding(`${j.g.length} gebouwen en ${j.d.length} bouwdelen ingeladen.`); return true;
   }catch(e){ melding("De gegevens in deze link konden niet gelezen worden."); return false; } }
 const cData = () => ls("cm-data");
@@ -625,7 +631,7 @@ const mData = () => ls("mm-data");
 function laadMeldUit(tekst, stil){
   const m = String(tekst||"").match(/#m=([A-Za-z0-9_\-]+)/); if(!m){ if(!stil) melding("In deze tekst staat geen meldlink.", 4000); return false; }
   try{ const j = linkJson(m[1]); if(!Array.isArray(j.g)) throw new Error("onvolledig");
-    const nieuw = JSON.stringify(j)!==JSON.stringify(ls("mm-data")||null); ls("mm-data", j); if(j.n && !ls("rg-naam")) ls("rg-naam", j.n);
+    const nieuw = JSON.stringify(j)!==JSON.stringify(ls("mm-data")||null); ls("mm-data", j); apErbij("m"); if(j.n && !ls("rg-naam")) ls("rg-naam", j.n);
     if(nieuw || !stil) melding(j.g.length===1 ? `Meldingen voor ${j.g[0][1]} ingeladen.` : `Meldingen voor ${j.g.length} gebouwen ingeladen.`); return true;
   }catch(e){ melding("De meldlink kon niet gelezen worden."); return false; } }
 const heeftM = () => !!(mData()?.g?.length) || heeftR() || heeftC();
@@ -721,7 +727,7 @@ function laadKUit(tekst, stil){
   return (async()=>{ try{ const s = atob(m[1].replace(/-/g,"+").replace(/_/g,"/")), u8 = new Uint8Array([...s].map(c=>c.charCodeAt(0)));
       const j = JSON.parse(await new Response(new Blob([u8]).stream().pipeThrough(new DecompressionStream("deflate-raw"))).text());
       if(!Array.isArray(j.a)) throw new Error("onvolledig");
-      ls("ka-data", j); await kLaad(); if(!stil) melding(`${j.a.length} actie${j.a.length===1?"":"s"} ingeladen.`); staat = {scherm:"kLijst"}; toon(); return true;
+      ls("ka-data", j); apErbij("k"); await kLaad(); if(!stil) melding(`${j.a.length} actie${j.a.length===1?"":"s"} ingeladen.`); staat = {scherm:"kLijst"}; toon(); return true;
     }catch(e){ melding("De acties in deze link konden niet gelezen worden."); return false; } })();
 }
 function kLaad(){ return new Promise(res=>{ const d = kData(); if(!d || !db || !db.objectStoreNames.contains("ka")){ kAnt = d ? {id:d.id, a:{}} : null; return res(); }
@@ -741,7 +747,9 @@ function kKaart(x){
     ${r.kies ? `<div class="ka-veld"><select data-v="uitv"><option value="">— kies wie het uitvoert —</option>${(d.n||[]).map(([pid, n])=>`<option value="${esc(pid)}" ${r.uitv?.[0]===pid?"selected":""}>${esc(n)}</option>`).join("")}</select></div>` : ""}</div>`;
 }
 function schermKLijst(){
-  const d = kData(); if(!d){ staat = {scherm:"start"}; return toon(); } if(!kAnt) kAnt = {id:d.id, a:{}};
+  const d = kData();
+  if(!d && (apData()?.o||[]).includes("k")){ kop("Mijn acties", "", tegels().length>1); $("#scherm").innerHTML = `<div class="kaart leeg"><p><b>Geen open acties.</b></p><p class="uitleg" style="margin-top:6px">Vraagt de preventiedienst je iets, dan krijg je een mail met een link. Die opent hier.</p></div>`; onder(""); return; }
+  if(!d){ staat = {scherm:"start"}; return toon(); } if(!kAnt) kAnt = {id:d.id, a:{}};
   kop("Mijn acties", `${d.c?.[1]||""}${d.dn?" · "+d.dn:""}`, tegels().length>1);
   const n = Object.values(kAnt.a).filter(r=>r.st || r.uitv).length, laat = d.a.filter(x=>x[3] && x[3]<vandaag() && kAnt.a[x[0]]?.st!=="uitgevoerd").length;
   $("#scherm").innerHTML = `<div class="kaart"><b>${d.a.length} open actie${d.a.length===1?"":"s"}</b>${laat?` · <span style="color:var(--rood); font-weight:700">${laat} over tijd</span>`:""}<p class="uitleg" style="margin-top:4px">Duid per actie aan wat er gebeurd is en verstuur daarna je antwoord. De preventiedienst verwerkt het.${kAnt.verzonden?` Laatst verzonden op ${dNL(kAnt.verzonden)}.`:""}</p></div>
@@ -788,6 +796,64 @@ async function kDelen(l, adres){
   kAnt.verzonden = vandaag(); await kBewaar(); toon(); melding(`Het bestand is gedownload: voeg het als bijlage toe aan een mail${adres?" naar "+adres:" aan de preventiedienst"}.`, 7000);
 }
 
+/* ======================= Eén app-link per persoon (#a=…, preventieprogramma 4.31) =======================
+   Eén link zet alles in één keer goed: naam, gebouwen, welke onderdelen (r rondgang, m melding, c conditiestaat, k mijn acties)
+   en eventueel de open acties. Het startscherm toont dan enkel die onderdelen. Een losse link (#g, #c, #m, #k) die later
+   geopend wordt, voegt zijn onderdeel toe. De eerste keer verschijnt een welkomscherm met de tip om de app op het beginscherm te zetten. */
+const AP_SCHERM = {r:"lijst", m:"mLijst", c:"cLijst", k:"kLijst"};
+let apWelkom = false;
+function apData(){ return ls("ap-data"); }
+function apErbij(x){ const d = apData(); if(d && !(d.o||[]).includes(x)){ d.o = [...(d.o||[]), x]; ls("ap-data", d); } }
+const voornaam = n => String(n||"").trim().split(/\s+/)[0] || "";
+function laadAUit(tekst, stil){
+  const m = String(tekst||"").match(/#a=([A-Za-z0-9_\-]+)/); if(!m){ if(!stil) melding("In deze tekst staat geen app-link.", 4000); return false; }
+  if(!window.DecompressionStream){ melding("Deze gsm kan de link niet lezen. Werk iOS bij (16.4 of nieuwer) en probeer opnieuw.", 6000); return false; }
+  return (async()=>{ try{ const s = atob(m[1].replace(/-/g,"+").replace(/_/g,"/")), u8 = new Uint8Array([...s].map(c=>c.charCodeAt(0)));
+      const j = JSON.parse(await new Response(new Blob([u8]).stream().pipeThrough(new DecompressionStream("deflate-raw"))).text());
+      if(!Array.isArray(j.o)) throw new Error("onvolledig");
+      const o = j.o.filter(x=>AP_SCHERM[x]), g = Array.isArray(j.g) ? j.g : [];
+      ls("ap-data", {id:j.id||"", tm:j.tm||"", n:j.n||"", pid:j.pid||"", o});
+      if(j.n) ls("rg-naam", j.n);
+      if(j.pm) ls("rg-pm", j.pm);
+      if(o.includes("r")){ ls("rg-gebouwen", g); ls("rg-checklists", Array.isArray(j.c) ? j.c : (ls("rg-checklists")||[])); }
+      if(o.includes("m")) ls("mm-data", {g, n:j.n||"", pm:j.pm||""});
+      // de acties uit de app-link vervangen geen nieuwere acties die intussen via een mail binnenkwamen
+      if(o.includes("k") && j.k && Array.isArray(j.k.a)){ const oud = kData(); if(!oud || !oud.tm || (j.k.tm||"") >= oud.tm) ls("ka-data", j.k); }
+      if(ls("ap-welkom")!==j.id) apWelkom = true;
+      if(!stil){ await kLaad(); staat = {scherm:apWelkom ? "welkom" : "start"}; toon(); }
+      return true;
+    }catch(e){ melding("De app-link kon niet gelezen worden."); return false; } })();
+}
+function apStandalone(){ try{ return !!(navigator.standalone || matchMedia("(display-mode: standalone)").matches); }catch(e){ return false; } }
+function schermWelkom(){
+  const d = apData(); if(!d){ staat = {scherm:"start"}; return toon(); }
+  kop("Welkom", "Houthalen-Helchteren", false);
+  $("#scherm").innerHTML = `<div class="kaart ap-welkom"><div class="ap-ok">&#10004;</div><b>Welkom${d.n ? " "+esc(voornaam(d.n)) : ""}</b><p class="uitleg">Alles staat klaar.<br>Je hoeft niets in te stellen.</p></div>
+    ${apStandalone() ? "" : `<div class="kaart ap-tip">&#128161; <b>Als icoon op je gsm?</b><br>iPhone: tik in Safari op <b>Deel</b> → <b>Zet op beginscherm</b>.<br>Android: <b>&#8942;</b> → <b>Toevoegen aan startscherm</b>.<br><span>Overslaan mag: de link in je mail blijft werken.</span></div>`}`;
+  onder(`<button class="knop hoofd" id="apStart">Starten</button>`);
+  $("#apStart").onclick = ()=>{ ls("ap-welkom", d.id); staat = {scherm:"start"}; toon(); };
+}
+function schermStartAp(){
+  const d = apData(), o = d.o||[];
+  const gb = [...new Set([...(mData()?.g||[]), ...gebouwen()].map(g=>g[1]))];
+  kop(d.n ? "Dag "+voornaam(d.n) : "Gebouwen", !gb.length ? "Houthalen-Helchteren" : gb.length<=3 ? gb.join(" · ") : `${gb.length} gebouwen`, false);
+  const k = kData(), st = x => kAnt?.a?.[x[0]]?.st || "";
+  const kOpen = k ? k.a.filter(x=>!st(x)).length : 0, kLaat = k ? k.a.filter(x=>x[3] && x[3]<vandaag() && st(x)!=="uitgevoerd").length : 0, kNw = k ? k.a.filter(x=>x[8] && !st(x)).length : 0;
+  const bezig = {r:lijst.filter(r=>!r.verzonden).length, m:meldingen.filter(x=>!x.verzonden).length, c:metingen.filter(x=>!x.verzonden).length};
+  const T = {r:["&#128203;", "Rondgang", "foto's en opmerkingen"], m:["&#9888;&#65039;", "Melding", "iets onveilig gezien?"],
+    c:["&#127970;", "Conditiestaat", heeftC() ? "bouwdelen en gebreken" : "open eerst de link uit projectopvolging"],
+    k:["&#9989;", "Mijn acties", !k ? "geen open acties" : [kLaat ? `${kLaat} te laat` : "", kNw ? `${kNw} nieuw` : ""].filter(Boolean).join(" · ") || `${k.a.length} actie${k.a.length===1?"":"s"}`]};
+  $("#scherm").innerHTML = ["r","m","c","k"].filter(x=>o.includes(x)).map(x=>{ const [ic, titel, sub] = T[x];
+    const rechts = x==="k" ? (kOpen ? `<span class="ap-bdg ${kLaat?"r":""}">${kOpen}</span>` : "") : (bezig[x] ? `<span class="pil bezig">${bezig[x]} bezig</span>` : "");
+    return `<button class="tegel" data-naar="${AP_SCHERM[x]}"><span class="tegel-ic">${ic}</span><span class="tegel-tx"><b>${titel}</b><span>${sub}</span></span>${rechts}</button>`; }).join("")
+    || `<div class="kaart leeg"><p>Er staat nog niets aan voor jou in deze app.</p></div>`;
+  document.querySelectorAll(".tegel").forEach(b=>b.onclick = ()=>{ staat = {scherm:b.dataset.naar}; toon(); });
+  onder("");
+}
+{ const _si = schermInstel; schermInstel = function(){ _si(); const d = apData(); if(!d) return;
+    const nm = {r:"rondgang", m:"melding", c:"conditiestaat", k:"mijn acties"};
+    $("#scherm").insertAdjacentHTML("afterbegin", `<div class="kaart"><label class="lbl">App-link</label><p>Ingesteld voor ${esc(d.n||"")}: ${esc((d.o||[]).map(x=>nm[x]).join(", "))}.</p><p class="uitleg" style="margin-top:6px">Kreeg je een nieuwe app-link, open ze dan gewoon: alles wordt bijgewerkt.</p></div>`); }; }
+
 $("#terug").onclick = ()=>{ const s = staat.scherm;
   if(s==="punt"){ concept = null; staat = {scherm:"rg", rid:staat.rid}; }
   else if(s==="cGebrek"){ cConcept = null; staat = {scherm:"cMeting", mid:staat.mid}; }
@@ -797,8 +863,8 @@ $("#terug").onclick = ()=>{ const s = staat.scherm;
   else staat = {scherm:"start"};
   toon(); };
 $("#instelKnop").onclick = ()=>{ staat = {scherm:"instel"}; toon(); };
-window.addEventListener("hashchange", ()=>{ leesLink(); staat = {scherm:"start"}; toon(); });
-(async()=>{ leesLink(); db = await dbOpen(); lijst = await dbAlles(); metingen = await cDbAlles(); meldingen = await mDbAlles(); await kLaad(); staat = {scherm:"start"}; toon(); })();
+window.addEventListener("hashchange", async ()=>{ apWelkom = false; await leesLink(); await kLaad(); staat = {scherm:apWelkom ? "welkom" : "start"}; toon(); });
+(async()=>{ const l = leesLink(); db = await dbOpen(); lijst = await dbAlles(); metingen = await cDbAlles(); meldingen = await mDbAlles(); await l; await kLaad(); staat = {scherm:apWelkom ? "welkom" : "start"}; toon(); })();
 </script>
 </body>
 </html>
